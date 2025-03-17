@@ -792,72 +792,90 @@ function calcularHorasRango(start, end) {
      5. RENDERIZADO DEL CALENDARIO
   =========================================================== */
   function renderCalendar(month, year) {
-    daysContainer.innerHTML = "";
-    daysContainer.style.gridTemplateColumns = "repeat(9, 1fr)";
-    const headerCells = ["WK", "WK TTS", "Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-    headerCells.forEach(text => {
-      let cell = document.createElement("div");
-      cell.textContent = text;
-      cell.classList.add("header-cell");
-      daysContainer.appendChild(cell);
-    });
-    let firstDayOfMonth = new Date(year, month, 1);
-    let startDay = firstDayOfMonth.getDay();
-    let gridStartDate = new Date(year, month, 1 - startDay);
-    for (let week = 0; week < 6; week++) {
-      let weekStartDate = new Date(gridStartDate);
-      weekStartDate.setDate(gridStartDate.getDate() + week * 7);
-      let isoWeek = getISOWeek(weekStartDate);
-      let fiscalWeek = getFiscalWeek(weekStartDate);
-      let weekCell = document.createElement("div");
-      weekCell.textContent = isoWeek;
-      weekCell.classList.add("week-cell");
-      daysContainer.appendChild(weekCell);
+  daysContainer.innerHTML = "";
+  daysContainer.style.gridTemplateColumns = "repeat(9, 1fr)";
+  
+  // Encabezados
+  const headerCells = ["WK", "WK TTS", "Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  headerCells.forEach(text => {
+    let cell = document.createElement("div");
+    cell.textContent = text;
+    cell.classList.add("header-cell");
+    daysContainer.appendChild(cell);
+  });
+  
+  // Determinamos el primer y último día del mes
+  let startOfMonth = new Date(year, month, 1);
+  let endOfMonth = new Date(year, month + 1, 0);
+  // Iniciamos en el domingo de la semana del 1º del mes
+  let gridStartDate = new Date(year, month, 1 - startOfMonth.getDay());
+  let currentWeekStart = new Date(gridStartDate);
+  
+  // Iteramos semana a semana hasta que el domingo de la siguiente semana supere el fin del mes
+  while (true) {
+    // Creamos un array con los 7 días de la semana
+    let weekDates = [];
+    for (let d = 0; d < 7; d++) {
+      let dt = new Date(currentWeekStart);
+      dt.setDate(currentWeekStart.getDate() + d);
+      weekDates.push(dt);
+    }
+    // Contamos cuántos días de la semana pertenecen al mes actual
+    let countCurrent = weekDates.filter(dt => dt.getMonth() === month).length;
+    
+    // Solo renderizamos la semana si tiene al menos 4 días en el mes actual
+    if (countCurrent >= 4) {
+      // Crea celdas para ISO y fiscal
+      let isoWeekCell = document.createElement("div");
+      isoWeekCell.classList.add("week-cell");
+      isoWeekCell.textContent = getISOWeek(currentWeekStart);
+      daysContainer.appendChild(isoWeekCell);
+      
       let fiscalCell = document.createElement("div");
-      fiscalCell.textContent = fiscalWeek;
       fiscalCell.classList.add("week-cell");
+      fiscalCell.textContent = getFiscalWeek(currentWeekStart);
       daysContainer.appendChild(fiscalCell);
-      for (let d = 0; d < 7; d++) {
-        let currentCellDate = new Date(weekStartDate);
-        currentCellDate.setDate(weekStartDate.getDate() + d);
+      
+      // Renderiza cada día de la semana
+      weekDates.forEach(dt => {
         let dayCell = document.createElement("div");
-        dayCell.textContent = currentCellDate.getDate();
         dayCell.classList.add("date");
-        dayCell.dataset.date = currentCellDate.toISOString().split("T")[0];
-        if (currentCellDate.getMonth() !== month) {
+        dayCell.textContent = dt.getDate();
+        dayCell.dataset.date = dt.toISOString().split("T")[0];
+        if (dt.getMonth() !== month) {
           dayCell.classList.add("other-month");
         }
         let today = new Date();
         if (
-          currentCellDate.getDate() === today.getDate() &&
-          currentCellDate.getMonth() === today.getMonth() &&
-          currentCellDate.getFullYear() === today.getFullYear()
+          dt.getDate() === today.getDate() &&
+          dt.getMonth() === today.getMonth() &&
+          dt.getFullYear() === today.getFullYear()
         ) {
           dayCell.classList.add("today");
         }
-        if (isHoliday(currentCellDate)) {
+        if (isHoliday(dt)) {
           dayCell.classList.add("holiday");
           let found = salvadorHolidays.find(h =>
-            h.month === currentCellDate.getMonth() && h.day === currentCellDate.getDate()
+            h.month === dt.getMonth() && h.day === dt.getDate()
           );
           if (found) {
             dayCell.title = found.label;
           }
         }
+        // Coloca íconos de Sol y Luna
+        //colocarIconosSolLuna(dt, dayCell);
+        turnoACard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'A');('A'); });
+        turnoBCard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'B');('B'); });
+        turnoALL.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'C');('C'); });
 
-        turnoACard.addEventListener("click", () => { colocarIconosSolLuna(currentCellDate, dayCell, 'A');('A'); });
-        turnoBCard.addEventListener("click", () => { colocarIconosSolLuna(currentCellDate, dayCell, 'B');('B'); });
-        turnoALL.addEventListener("click", () => { colocarIconosSolLuna(currentCellDate, dayCell, 'C');('C'); });
-
+        
+        // Agrega el listener para la selección (por ejemplo, para actualizar información individual)
         dayCell.addEventListener("click", () => {
-
           document.querySelectorAll("#daysContainer .date").forEach(cell => {
             cell.classList.remove("selected");
           });
-          
           dayCell.classList.add("selected");
-
-          const selectedDate = new Date(currentCellDate);
+          const selectedDate = new Date(dt);
           selectedDate.setHours(0,0,0,0);
           lastSelectedDate = selectedDate;
           let shiftState = getShiftState(selectedDate);
@@ -868,27 +886,27 @@ function calcularHorasRango(start, end) {
           turnoACard.style.opacity = (shiftState.A === 'Activo') ? 1 : 0.4;
           turnoBCard.style.opacity = (shiftState.B === 'Activo') ? 1 : 0.4;
           highlightCustomBlock(lastSelectedDate);
-
-          isoWeekEl.textContent = getISOWeek(selectedDate)-1;
-          fiscalWeekEl.textContent = getFiscalWeek(selectedDate)-1;
-
-
-          // (Aquí también se actualiza la selección visual)
+          isoWeekEl.textContent = getISOWeek(selectedDate) - 1;
+          fiscalWeekEl.textContent = getFiscalWeek(selectedDate) - 1;
           onFechaSeleccionada(selectedDate);
-
-          // Agregar listeners para arrastrar y seleccionar rango
-          addDragListeners(dayCell, currentCellDate);
-
         });
+        
         daysContainer.appendChild(dayCell);
-      }
+      });
     }
-    const monthNames = [
-      'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
-    ];
-    monthYearEl.textContent = `${monthNames[month]} ${year}`;
+    
+    // Avanza a la siguiente semana
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    // Salimos del bucle si el domingo de la nueva semana es mayor al último día del mes
+    if (currentWeekStart > endOfMonth) break;
   }
+  
+  const monthNames = [
+    'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
+  ];
+  monthYearEl.textContent = `${monthNames[month]} ${year}`;
+}
 
   /* ===========================================================
      6. RESALTAR DÍAS ACTIVOS CON DIAGONAL (mitad de la celda)
