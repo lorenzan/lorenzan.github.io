@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Calendario con Turnos AB</title>
+  <title>Calendario con Turnos, Bloques, Asuetos y Diagonal Highlight</title>
   <style>
     /* Fuente Roboto (opcional, requiere conexión a Internet) */
     @import url('https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap');
@@ -27,7 +27,7 @@
     /* Calendario */
     #calendarCard {
       background: #FFFFFF;
-      width: 500px; /* para 9 columnas */
+      width: 600px; /* para 9 columnas */
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       overflow: hidden;
@@ -349,36 +349,36 @@
   const cycleLength = 15;
   const pattern = [
     { A: 'Descanso', B: 'Activo' },
-    { A: 'Descanso', B: 'Activo' },
+    { A: 'Extras',   B: 'Activo' },
     { A: 'Descanso', B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
     { A: 'Activo',   B: 'Descanso' },
+    { A: 'Activo',   B: 'Extras' },
     { A: 'Activo',   B: 'Descanso' },
-    { A: 'Activo',   B: 'Descanso' },
+    { A: 'Extras',   B: 'Activo' },
     { A: 'Descanso', B: 'Activo' },
-    { A: 'Descanso', B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Descanso' },
+    { A: 'Activo',   B: 'Extras' },
     { A: 'Activo',   B: 'Descanso' }
   ];
   const pattern_DN = [
-    { A: ' ',     B: 'Noche |   13 Horas' },
-    { A: ' ',     B: 'Noche |   13 Horas' },
-    { A: ' ',     B: 'Noche |   13 Horas' },
+    { A: ' ',                  B: 'Noche |   13 Horas' },
+    { A: 'Extras',             B: 'Noche |   13 Horas' },
+    { A: ' ',                  B: 'Noche |   13 Horas' },
     { A: 'Dia |   11 Horas',   B: 'Noche |   13 Horas' },
     { A: 'Dia |   11 Horas',   B: 'Noche |  13 Horas' },
     { A: 'Dia |   11 Horas',   B: ' '     },
+    { A: 'Dia |   11 Horas',   B: 'Extras'     },
     { A: 'Dia |   11 Horas',   B: ' '     },
-    { A: 'Dia |   11 Horas',   B: ' '     },
-    { A: ' ',     B: 'Dia |   11 Horas'   },
-    { A: ' ',     B: 'Dia |   11 Horas'   },
+    { A: 'Extras',             B: 'Dia |   11 Horas'   },
+    { A: ' ',                  B: 'Dia |   11 Horas'   },
     { A: 'Noche |   13 Horas', B: 'Dia |   11 Horas'   },
     { A: 'Noche |   13 Horas', B: 'Dia |   11 Horas'   },
     { A: 'Noche |   13 Horas', B: 'Dia |   11 Horas'   },
-    { A: 'Noche |   13 Horas', B: ' '     },
+    { A: 'Noche |   13 Horas', B: 'Extras'     },
     { A: 'Noche |   13 Horas', B: ' '     }
   ];
 
@@ -387,6 +387,7 @@
   let currentYear = currentDate.getFullYear();
   let lastSelectedDate = null;
   let isSelecting = false;
+
   /* ===========================================================
      3. FUNCIONES AUXILIARES
   =========================================================== */
@@ -416,6 +417,7 @@
     }
     return result;
   }
+
   function getShiftState_DN(dateObj) {
     const diff = daysBetween(dateObj, referenceDate);
     const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
@@ -434,6 +436,7 @@
     }
     return dn;
   }
+
   function getShiftState_DN_noOverride(dateObj) {
     const diff = daysBetween(dateObj, referenceDate);
     const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
@@ -449,7 +452,7 @@
     let fyStart = new Date(date.getFullYear(), 6, 1);
     if (date < fyStart) { fyStart = new Date(date.getFullYear() - 1, 6, 1); }
     const dayDiff = Math.floor((date - fyStart) / (1000 * 60 * 60 * 24));
-    return Math.floor(dayDiff / 7) + 2;
+    return Math.floor(dayDiff / 7) +2;
   }
   // Ajuste: Se eliminó el +1 en blockEnd para que el bloque sea exacto
   function computeBlockDates(turn, selectedDate) {
@@ -472,6 +475,7 @@
     return { blockStart, blockEnd, state: currentState };
   }
 
+ 
 
 
   // Función para extraer el número de horas de una cadena, por ejemplo "Noche | 13 Horas"
@@ -481,7 +485,6 @@ function extraerHoras(str) {
 }
 
 
- 
 // Calcula, para la semana en la que se encuentra la fecha seleccionada,
 // el total de horas disponibles (según el patrón para turno A)
 // y las horas restantes en función de la fecha actual
@@ -621,6 +624,11 @@ function onFechaSeleccionada(selectedDate) {
         iconA.classList.add("icon-turno", "icon-a");
         iconA.textContent = "🌑";
         dayCell.appendChild(iconA);
+      } else if(dn.A.includes("Extras")){
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "🟦";
+        dayCell.appendChild(iconA);
       }
     }else if (turn === "B"){
       // Turno B
@@ -634,6 +642,11 @@ function onFechaSeleccionada(selectedDate) {
         iconB.classList.add("icon-turno", "icon-b");
         iconB.textContent = "🌑";
         dayCell.appendChild(iconB);
+      }else if(dn.B.includes("Extras")){
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "🟩";
+        dayCell.appendChild(iconA);
       }
     }
     else{
@@ -648,6 +661,11 @@ function onFechaSeleccionada(selectedDate) {
         iconA.classList.add("icon-turno", "icon-a");
         iconA.textContent = "🌑";
         dayCell.appendChild(iconA);
+      } else if(dn.A.includes("Extras")){
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "🟦";
+        dayCell.appendChild(iconA);
       }
 
       if (dn.B.includes("Dia")) {
@@ -660,6 +678,11 @@ function onFechaSeleccionada(selectedDate) {
         iconB.classList.add("icon-turno", "icon-b");
         iconB.textContent = "🌑";
         dayCell.appendChild(iconB);
+      } else if(dn.B.includes("Extras")){
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "🟩";
+        dayCell.appendChild(iconA);
       }
 
     }
