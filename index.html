@@ -373,13 +373,13 @@
   const referenceDate = new Date(2025, 3, 4); // 4 de abril de 2025
   const cycleLength = 15;
   const pattern = [
-    { A: 'Descanso', B: 'Activo' },
     { A: 'Extras',   B: 'Activo' },
     { A: 'Descanso', B: 'Activo' },
+    { A: 'Descanso', B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
     { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Descanso' },
     { A: 'Activo',   B: 'Extras' },
+    { A: 'Activo',   B: 'Descanso' },
     { A: 'Activo',   B: 'Descanso' },
     { A: 'Extras',   B: 'Activo' },
     { A: 'Descanso', B: 'Activo' },
@@ -390,13 +390,13 @@
     { A: 'Activo',   B: 'Descanso' }
   ];
   const pattern_DN = [
-    { A: ' ',                  B: 'Noche |   13 Horas' },
-    { A: 'Extras',             B: 'Noche |   13 Horas' },
+    { A: 'Extras',                  B: 'Noche |   13 Horas' },
+    { A: ' ',             B: 'Noche |   13 Horas' },
     { A: ' ',                  B: 'Noche |   13 Horas' },
     { A: 'Dia |   11 Horas',   B: 'Noche |   13 Horas' },
     { A: 'Dia |   11 Horas',   B: 'Noche |  13 Horas' },
-    { A: 'Dia |   11 Horas',   B: ' '     },
     { A: 'Dia |   11 Horas',   B: 'Extras'     },
+    { A: 'Dia |   11 Horas',   B: ' '     },
     { A: 'Dia |   11 Horas',   B: ' '     },
     { A: 'Extras',             B: 'Dia |   11 Horas'   },
     { A: ' ',                  B: 'Dia |   11 Horas'   },
