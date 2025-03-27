@@ -118,7 +118,7 @@
       position: absolute;
       top: 2px;
       left: 2px;
-      font-size: 8px;
+      font-size:9px;
       color: #000;
       background: rgba(255, 255, 255, 0.462);
       padding: 1px 1px;
@@ -206,6 +206,7 @@
       transition: background 0.3s ease;
     }
 
+
     .btn:hover {
       background-color: #0588b3;
     }
@@ -282,8 +283,13 @@
     <div class="turnoCard turnoA" id="turnoACard">Turno A</div>
     <div class="turnoCard turnoB" id="turnoBCard">Turno B</div>
     <div class="turnoCard turnoALL" id="turnoALL">ALL</div>
+    <div class="info-row">
+      <div>🟩🟦</div>
+      <input type="checkbox"  id="CheckHorasExtras">
+    </div>
   </div>
 </div>
+
 
 <!-- Tarjeta de información mejorada -->
 <div class="infoContainer">
@@ -336,17 +342,14 @@
 <div class="infoContainer" >
   <div id="infoCard" class="date-range">
 
-    <div class="calculator">
+    <div class="calculator" >
       <div id="resultadoFecha"></div>
       <br>
-      <label for="cantidadHoras">Horas a calcular:</label>
-      <input type="number" id="cantidadHoras" placeholder="Ej. 24" />
+      <label for="cantidadHoras" style="padding-right: 30px;">Horas a calcular:</label>
+      <input type="number" style="padding-right: 30px;" id="cantidadHoras" placeholder="Ej. 24"/>
       <button class="btn" id="calcularFecha">Calcular Fecha</button>
-      
     </div>
-
     <br>
-
     <label for="startDate">Inicio:</label>
     <input class="rng_date" type="date" id="startDate">
     <label for="endDate">Fin:</label>
@@ -395,6 +398,8 @@
   const startDateInput = document.getElementById("startDate");
   const endDateInput = document.getElementById("endDate");
   const calcularRangoBtn = document.getElementById("calcularRango");
+
+  const Ck_horasExtras = document.getElementById("CheckHorasExtras")
 
   const referenceDate = new Date(2025, 3, 4); 
   const cycleLength = 15;
@@ -663,6 +668,68 @@ function onFechaSeleccionada(selectedDate) {
         iconA.classList.add("icon-turno", "icon-a");
         iconA.textContent = "🌑";
         dayCell.appendChild(iconA);
+      }
+    }else if (turn === "B"){
+      // Turno B
+      if (dn.B.includes("Dia")) {
+        let iconB = document.createElement("span");
+        iconB.classList.add("icon-turno", "icon-b");
+        iconB.textContent = "☀️";
+        dayCell.appendChild(iconB);
+      } else if (dn.B.includes("Noche")) {
+        let iconB = document.createElement("span");
+        iconB.classList.add("icon-turno", "icon-b");
+        iconB.textContent = "🌑";
+        dayCell.appendChild(iconB);
+      }
+    }
+    else{
+
+      if (dn.A.includes("Dia")) {
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "☀️";
+        dayCell.appendChild(iconA);
+      } else if (dn.A.includes("Noche")) {
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "🌑";
+        dayCell.appendChild(iconA);
+      }
+      if (dn.B.includes("Dia")) {
+        let iconB = document.createElement("span");
+        iconB.classList.add("icon-turno", "icon-b");
+        iconB.textContent = "☀️";
+        dayCell.appendChild(iconB);
+      } else if (dn.B.includes("Noche")) {
+        let iconB = document.createElement("span");
+        iconB.classList.add("icon-turno", "icon-b");
+        iconB.textContent = "🌑";
+        dayCell.appendChild(iconB);
+      } 
+    }
+}
+
+
+function mostrar_turnos(dateObj, dayCell, turn) {
+    dayCell.querySelectorAll(".icon-turno").forEach(icon => icon.remove());
+
+    // Obtenemos Dia/Noche para A y B
+    let dn = getShiftState_DN(dateObj);
+
+    // Turno A
+    if(turn === "A"){
+      if (dn.A.includes("Dia")) {
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "☀️";
+        dayCell.appendChild(iconA);
+        
+      } else if (dn.A.includes("Noche")) {
+        let iconA = document.createElement("span");
+        iconA.classList.add("icon-turno", "icon-a");
+        iconA.textContent = "🌑";
+        dayCell.appendChild(iconA);
       } else if(dn.A.includes("Extras")){
         let iconA = document.createElement("span");
         iconA.classList.add("icon-turno", "icon-a");
@@ -726,7 +793,6 @@ function onFechaSeleccionada(selectedDate) {
 
     }
 }
-
 
 function calcularHorasRango(start, end) {
     let total = 0;
@@ -809,7 +875,7 @@ function calcularHorasRango(start, end) {
     }
 
   calcularRangoBtn.addEventListener("click", actualizarRangoPorSelector);
-
+  Ck_horasExtras.addEventListener("click", () => renderCalendar(currentMonth, currentYear));
 
   function renderCalendar(month, year) {
   daysContainer.innerHTML = "";
@@ -877,9 +943,17 @@ function calcularHorasRango(start, end) {
         }
         // Coloca íconos de Sol y Luna
         //colocarIconosSolLuna(dt, dayCell);
-        turnoACard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'A');('A'); });
-        turnoBCard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'B');('B'); });
-        turnoALL.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'C');('C'); });
+
+
+        if (Ck_horasExtras.checked === false) {
+          turnoACard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'A');('A'); });
+          turnoBCard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'B');('B'); });
+          turnoALL.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'C');('C'); });
+        }else{
+          turnoACard.addEventListener("click", () => { mostrar_turnos(dt, dayCell, 'A');('A'); });
+          turnoBCard.addEventListener("click", () => { mostrar_turnos(dt, dayCell, 'B');('B'); });
+          turnoALL.addEventListener("click", () => { mostrar_turnos(dt, dayCell, 'C');('C'); });
+        }
 
         agregarHorasDisponibles(dt, dayCell);
         
