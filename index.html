@@ -114,6 +114,19 @@
       width: 200px;
     }
 
+    .horas-disponibles {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 8px;
+      color: #000;
+      background: rgba(255, 255, 255, 0.462);
+      padding: 1px 1px;
+      border-radius: 3px;
+      z-index: 3;
+    }
+
+
     .turnoCard {
       background: #FFFFFF;
       border-radius: 8px;
@@ -222,6 +235,13 @@
       border: 2px solid #0e9135;
     }
 
+    .calculator input[type="number"] {
+      padding: 8px;
+      font-size: 16px;
+      width: 150px;
+      margin-right: 10px;
+    }
+
     @media screen and (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -315,6 +335,18 @@
 
 <div class="infoContainer" >
   <div id="infoCard" class="date-range">
+
+    <div class="calculator">
+      <div id="resultadoFecha"></div>
+      <br>
+      <label for="cantidadHoras">Horas a calcular:</label>
+      <input type="number" id="cantidadHoras" placeholder="Ej. 24" />
+      <button class="btn" id="calcularFecha">Calcular Fecha</button>
+      
+    </div>
+
+    <br>
+
     <label for="startDate">Inicio:</label>
     <input class="rng_date" type="date" id="startDate">
     <label for="endDate">Fin:</label>
@@ -323,10 +355,8 @@
   </div>
 </div>
 
+
 <script>
-  /* ===========================================================
-     1. FERIADOS (ASUETOS) SALVADOREÑOS FIJOS
-  =========================================================== */
   const salvadorHolidays = [
     { month: 0,  day: 1,  label: "Año Nuevo" },
     { month: 3,  day: 17, label: "Jueves Santo" },
@@ -341,9 +371,6 @@
     { month: 11, day: 25, label: "Navidad" }
   ];
 
-  /* ===========================================================
-     2. VARIABLES Y REFERENCIAS
-  =========================================================== */
   const monthYearEl = document.getElementById('monthYear');
   const daysContainer = document.getElementById('daysContainer');
   const prevButton = document.getElementById('prev');
@@ -369,8 +396,7 @@
   const endDateInput = document.getElementById("endDate");
   const calcularRangoBtn = document.getElementById("calcularRango");
 
-  // Ajusta según tu caso
-  const referenceDate = new Date(2025, 3, 4); // 4 de abril de 2025
+  const referenceDate = new Date(2025, 3, 4); 
   const cycleLength = 15;
   const pattern = [
     { A: 'Extras',   B: 'Activo' },
@@ -413,9 +439,6 @@
   let lastSelectedDate = null;
   let isSelecting = false;
 
-  /* ===========================================================
-     3. FUNCIONES AUXILIARES
-  =========================================================== */
   function daysBetween(date1, date2) {
     const d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
     const d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
@@ -479,7 +502,7 @@
     const dayDiff = Math.floor((date - fyStart) / (1000 * 60 * 60 * 24));
     return Math.floor(dayDiff / 7) +2;
   }
-  // Ajuste: Se eliminó el +1 en blockEnd para que el bloque sea exacto
+
   function computeBlockDates(turn, selectedDate) {
     const diff = daysBetween(selectedDate, referenceDate);
     const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
@@ -501,9 +524,20 @@
   }
 
  
+function agregarHorasDisponibles(dateObj, dayCell) {
+  // Obtenemos el patrón de día/noche para ese día
+  let dn = getShiftState_DN(dateObj);
+  // Sumamos las horas disponibles para turno A y B
+  let horas = extraerHoras(dn.A) + extraerHoras(dn.B);
+  // Creamos el span para mostrar las horas
+  let span = document.createElement("span");
+  span.classList.add("horas-disponibles");
+  span.textContent = `${horas} h`;
+  // Lo agregamos a la celda (se posicionará en la esquina superior izquierda)
+  dayCell.appendChild(span);
+}
 
 
-  // Función para extraer el número de horas de una cadena, por ejemplo "Noche | 13 Horas"
 function extraerHoras(str) {
   const match = str.match(/(\d+)\s*Horas/i);
   return match ? parseInt(match[1], 10) : 0;
@@ -511,11 +545,7 @@ function extraerHoras(str) {
 
 
 // Calcula, para la semana en la que se encuentra la fecha seleccionada,
-// el total de horas disponibles (según el patrón para turno A)
-// y las horas restantes en función de la fecha actual
 function calcularHorasSemana(selectedDate) {
-  // La semana se define desde el domingo hasta el sábado.
-  // Calculamos el domingo de la semana de selectedDate:
 
   let offset = selectedDate.getDay() - 4;
 if (offset < 0) offset += 7;
@@ -532,13 +562,10 @@ finSemana.setDate(inicioSemana.getDate() + 7);
   let horasRestantes = 0;
   let hoy = new Date();
   
-  // Recorremos cada día de la semana (0 a 6)
   for (let i = 0; i < 7; i++) {
     let dia = new Date(inicioSemana);
     dia.setDate(inicioSemana.getDate() + i);
-    // Obtenemos el patrón de día/noche para turno A (con override, si aplica)
     let dn = getShiftState_DN(dia); 
-    // Extraemos el número de horas; si la celda está en blanco se considera 0.
     let horasDia = extraerHoras(dn.A);
     totalHoras += horasDia;
 
@@ -547,7 +574,6 @@ finSemana.setDate(inicioSemana.getDate() + 7);
     totalHoras += horasDiaB
 
     // Para horas restantes:
-    // Si el día ya pasó (comparando solo la fecha), se suma 0.
     let hoySolo = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
     if (dia < hoySolo) {
       horasRestantes += 0;
@@ -567,12 +593,8 @@ finSemana.setDate(inicioSemana.getDate() + 7);
   return { total: totalHoras, restantes: horasRestantes };
 }
 
-// Ejemplo de actualización de la información en la tarjeta al seleccionar una fecha
 function onFechaSeleccionada(selectedDate) {
-  // Actualiza la fecha seleccionada
-  //fechaSeleccionadaEl.textContent =
-   // `${selectedDate.getDate()}/${selectedDate.getMonth()+1}/${selectedDate.getFullYear()} Horas disponibles:`;
-  // Actualiza la información de turnos (usando tus funciones existentes)
+
   let shiftState = getShiftState(selectedDate);
   let shiftStateDN = getShiftState_DN(selectedDate);
   turnoAInfoEl.textContent = `${shiftState.A} | ${shiftStateDN.A}`;
@@ -592,12 +614,6 @@ function onFechaSeleccionada(selectedDate) {
 
 }
 
-
-  /* ===========================================================
-     4. BLOQUE CUSTOM:
-         - Semana actual: domingo de la semana seleccionada.
-         - Bloque custom: de la semana anterior (jueves a sábado) y de la semana actual (domingo a miércoles).
-  =========================================================== */
   function highlightCustomBlock(selectedDate) {
     let selectedSunday = new Date(selectedDate);
     selectedSunday.setHours(0,0,0,0);
@@ -628,9 +644,7 @@ function onFechaSeleccionada(selectedDate) {
     });
   }
 
-  /* ================== NUEVA FUNCIÓN: colocarIconosSolLuna ================== */
   function colocarIconosSolLuna(dateObj, dayCell, turn) {
-    // Eliminar íconos previos si existieran
     dayCell.querySelectorAll(".icon-turno").forEach(icon => icon.remove());
 
     // Obtenemos Dia/Noche para A y B
@@ -714,7 +728,6 @@ function onFechaSeleccionada(selectedDate) {
 }
 
 
-// Calcula las horas totales en el rango (día a día)
 function calcularHorasRango(start, end) {
     let total = 0;
     let current = new Date(start);
@@ -726,11 +739,8 @@ function calcularHorasRango(start, end) {
     }
     return total;
   }
-  // Actualiza la selección visual y la información de horas en el rango
   function actualizarRangoSeleccionado() {
-    // Limpia la clase "range-selected" de todas las celdas
     document.querySelectorAll("#daysContainer .date").forEach(cell => cell.classList.remove("range-selected"));
-    // Marca las celdas dentro del rango seleccionado
     document.querySelectorAll("#daysContainer .date").forEach(cell => {
       let cellDate = new Date(cell.dataset.date);
       cellDate.setHours(0,0,0,0);
@@ -738,27 +748,21 @@ function calcularHorasRango(start, end) {
         cell.classList.add("range-selected");
       }
     });
-    // Actualiza la información en la tarjeta
     const totalHoras = calcularHorasRango(rangeStart, rangeEnd);
     horasRangoEl.textContent = `${totalHoras} hrs`;
-    // También se pueden actualizar semanas, etc.
   }
 
-  /* ================== 4. EVENTOS DE SELECCIÓN POR ARRASTRE ================== */
-  // Añadimos listeners a cada celda en renderCalendar
   function addDragListeners(dayCell, currentCellDate) {
     dayCell.addEventListener("mousedown", () => {
       isSelecting = true;
       rangeStart = new Date(currentCellDate);
       rangeEnd = new Date(currentCellDate);
-      // Limpiar selección previa
       document.querySelectorAll("#daysContainer .date").forEach(c => c.classList.remove("selected", "range-selected"));
       dayCell.classList.add("selected", "range-selected");
     });
     dayCell.addEventListener("mouseover", () => {
       if(isSelecting) {
         rangeEnd = new Date(currentCellDate);
-        // Si rangeEnd es menor que rangeStart, intercambiarlos
         if(rangeEnd < rangeStart) {
           let temp = rangeStart;
           rangeStart = rangeEnd;
@@ -768,54 +772,45 @@ function calcularHorasRango(start, end) {
       }
     });
   }
-  // Escucha global para finalizar la selección
   document.addEventListener("mouseup", () => {
     if(isSelecting) {
       isSelecting = false;
-      // Aquí podrías llamar a onFechaSeleccionada(rangeStart) si deseas actualizar otra info
     }
   });
 
 
   function actualizarRangoPorSelector() {
-    let startVal = startDateInput.value;
-    let endVal = endDateInput.value;
-    if (!startVal || !endVal) {
-      alert("Seleccione ambas fechas.");
-      return;
-    }
-    rangeStart = new Date(startVal);
-    rangeEnd = new Date(endVal);
-    if(rangeEnd < rangeStart) {
-      let temp = rangeStart;
-      rangeStart = rangeEnd;
-      rangeEnd = temp;
-    }
-    // Actualiza la tarjeta de información
-    fechaSeleccionadaEl.textContent = `${rangeStart.getDate()+1}/${rangeStart.getMonth()+1}/${rangeStart.getFullYear()} - ${rangeEnd.getDate()}/${rangeEnd.getMonth()+1}/${rangeEnd.getFullYear()}`;
-    const totalHoras = calcularHorasRango( rangeStart.setDate(rangeStart.getDate() + 1),rangeEnd.setDate(rangeEnd.getDate() + 1));
-    horasRangoEl.textContent = `${totalHoras} hrs`;
-
-    // Actualiza las celdas del calendario
-    document.querySelectorAll("#daysContainer .date").forEach(cell => cell.classList.remove("range-selected"));
-    document.querySelectorAll("#daysContainer .date").forEach(cell => {
-      let cellDate = new Date(cell.dataset.date);
-      cellDate.setHours(0,0,0,0);
-      if (cellDate >= rangeStart && cellDate <= rangeEnd) {
-        cell.classList.add("range-selected");
+      let startVal = startDateInput.value;
+      let endVal = endDateInput.value;
+      if (!startVal || !endVal) {
+        alert("Seleccione ambas fechas.");
+        return;
       }
-    });
-    // Actualiza las semanas (usando la fecha de inicio)
-    isoWeekEl.textContent = getISOWeek(rangeStart);
-    fiscalWeekEl.textContent = getFiscalWeek(rangeStart);
-  }
+      rangeStart = new Date(startVal);
+      rangeEnd = new Date(endVal);
+      if (rangeEnd < rangeStart) {
+        let temp = rangeStart;
+        rangeStart = rangeEnd;
+        rangeEnd = temp;
+      }
+      fechaSeleccionadaEl.textContent = `${rangeStart.getDate()}/${rangeStart.getMonth()+1}/${rangeStart.getFullYear()} - ${rangeEnd.getDate()}/${rangeEnd.getMonth()+1}/${rangeEnd.getFullYear()}`;
+      const totalHoras = calcularHorasRango(rangeStart, rangeEnd);
+      horasRangoEl.textContent = `${totalHoras} hrs`;
+      document.querySelectorAll("#daysContainer .date").forEach(cell => cell.classList.remove("range-selected"));
+      document.querySelectorAll("#daysContainer .date").forEach(cell => {
+        let cellDate = new Date(cell.dataset.date);
+        cellDate.setHours(0,0,0,0);
+        if (cellDate >= rangeStart && cellDate <= rangeEnd) {
+          cell.classList.add("range-selected");
+        }
+      });
+      isoWeekEl.textContent = getISOWeek(rangeStart);
+      fiscalWeekEl.textContent = getFiscalWeek(rangeStart);
+    }
 
   calcularRangoBtn.addEventListener("click", actualizarRangoPorSelector);
 
 
-  /* ===========================================================
-     5. RENDERIZADO DEL CALENDARIO
-  =========================================================== */
   function renderCalendar(month, year) {
   daysContainer.innerHTML = "";
   daysContainer.style.gridTemplateColumns = "repeat(9, 1fr)";
@@ -829,28 +824,21 @@ function calcularHorasRango(start, end) {
     daysContainer.appendChild(cell);
   });
   
-  // Determinamos el primer y último día del mes
   let startOfMonth = new Date(year, month, 1);
   let endOfMonth = new Date(year, month + 1, 0);
-  // Iniciamos en el domingo de la semana del 1º del mes
   let gridStartDate = new Date(year, month, 1 - startOfMonth.getDay());
   let currentWeekStart = new Date(gridStartDate);
   
-  // Iteramos semana a semana hasta que el domingo de la siguiente semana supere el fin del mes
   while (true) {
-    // Creamos un array con los 7 días de la semana
     let weekDates = [];
     for (let d = 0; d < 7; d++) {
       let dt = new Date(currentWeekStart);
       dt.setDate(currentWeekStart.getDate() + d);
       weekDates.push(dt);
     }
-    // Contamos cuántos días de la semana pertenecen al mes actual
     let countCurrent = weekDates.filter(dt => dt.getMonth() === month).length;
     
-    // Solo renderizamos la semana si tiene al menos 4 días en el mes actual
     if (countCurrent >= 4) {
-      // Crea celdas para ISO y fiscal
       let isoWeekCell = document.createElement("div");
       isoWeekCell.classList.add("week-cell");
       isoWeekCell.textContent = getISOWeek(currentWeekStart);
@@ -893,8 +881,8 @@ function calcularHorasRango(start, end) {
         turnoBCard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'B');('B'); });
         turnoALL.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'C');('C'); });
 
+        agregarHorasDisponibles(dt, dayCell);
         
-        // Agrega el listener para la selección (por ejemplo, para actualizar información individual)
         dayCell.addEventListener("click", () => {
           document.querySelectorAll("#daysContainer .date").forEach(cell => {
             cell.classList.remove("selected");
@@ -920,9 +908,7 @@ function calcularHorasRango(start, end) {
       });
     }
     
-    // Avanza a la siguiente semana
     currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-    // Salimos del bucle si el domingo de la nueva semana es mayor al último día del mes
     if (currentWeekStart > endOfMonth) break;
   }
   
@@ -933,9 +919,6 @@ function calcularHorasRango(start, end) {
   monthYearEl.textContent = `${monthNames[month]} ${year}`;
 }
 
-  /* ===========================================================
-     6. RESALTAR DÍAS ACTIVOS CON DIAGONAL (mitad de la celda)
-  =========================================================== */
   function highlightTurnDays(turn) {
     document.querySelectorAll("#daysContainer .date").forEach(cell => {
       let existingElement = cell.querySelector('.diagonal-highlight');
@@ -957,12 +940,6 @@ function calcularHorasRango(start, end) {
     });
   }
 
-
-  /* ===========================================================
-     7. BOTÓN PARA MOSTRAR BLOQUE CUSTOM
-         (De la semana anterior: jueves a sábado,
-          De la semana actual: domingo a miércoles)
-  =========================================================== */
   customBlockBtn.addEventListener("click", () => {
     if (lastSelectedDate) {
       highlightCustomBlock(lastSelectedDate);
@@ -970,10 +947,6 @@ function calcularHorasRango(start, end) {
       alert("Selecciona primero una fecha del calendario.");
     }
   });
-
-  /* ===========================================================
-     8. EVENTOS DE NAVEGACIÓN DE MES
-  =========================================================== */
   prevButton.addEventListener("click", () => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -988,6 +961,33 @@ function calcularHorasRango(start, end) {
   });
 
   renderCalendar(currentMonth, currentYear);
+
+
+  document.getElementById("calcularFecha").addEventListener("click", () => {
+      const cantidad = parseFloat(document.getElementById("cantidadHoras").value);
+      if (isNaN(cantidad) || cantidad <= 0) {
+        alert("Ingrese una cantidad válida de horas.");
+        return;
+      }
+      const hoy = new Date();
+      const fechaFinal = calcularFechaPorHoras(cantidad, hoy);
+      document.getElementById("resultadoFecha").textContent = "Fecha alcanzada: " + fechaFinal.toLocaleDateString();
+    });
+    
+    function calcularFechaPorHoras(cantidad, startDate) {
+      let total = 0;
+      let current = new Date(startDate);
+      while (total < cantidad) {
+        let dn = getShiftState_DN(current);
+        let horas = extraerHoras(dn.A) + extraerHoras(dn.B);
+        total += horas;
+        if (total >= cantidad) break;
+        current.setDate(current.getDate() + 1);
+      }
+      return current;
+    }
+
+
 </script>
 </body>
 </html>
