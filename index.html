@@ -797,14 +797,20 @@ function mostrar_turnos(dateObj, dayCell, turn) {
 function calcularHorasRango(start, end) {
     let total = 0;
     let current = new Date(start);
-    while(current <= end) {
+    current.setDate(current.getDate() + 1); // Sumar un día a la fecha de inicio
+    let endDate = new Date(end);
+    endDate.setDate(endDate.getDate() + 1); // Sumar un día a la fecha de fin
+
+    while(current <= endDate) {
       let dn = getShiftState_DN(current);
       let horasDia = extraerHoras(dn.A) + extraerHoras(dn.B);
       total += horasDia;
       current.setDate(current.getDate() + 1);
     }
     return total;
-  }
+}
+
+  
   function actualizarRangoSeleccionado() {
     document.querySelectorAll("#daysContainer .date").forEach(cell => cell.classList.remove("range-selected"));
     document.querySelectorAll("#daysContainer .date").forEach(cell => {
