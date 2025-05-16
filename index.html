@@ -1,363 +1,588 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Calendario de Turnos A y B de Tejeduría</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario de Turnos Moderno</title>
   <style>
-    @import url('https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap');
-    * { box-sizing: border-box; }
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+    :root {
+      --primary-color: #4A90E2;
+      --secondary-color: #50E3C2;
+      --background-color: #F4F7F6;
+      --card-background-color: #FFFFFF;
+      --text-color: #333333;
+      --text-color-light: #FFFFFF;
+      --border-color: #E0E0E0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --hover-highlight-color: #D4E6FB;
+      --today-highlight-color: #FFF2C1;
+      --shift-a-color: #4A90E2;
+      --shift-b-color: #7ED321;
+      --shift-c-color: #9B59B6; /* Morado para Turno C */
+      --shift-all-color: #F5A623;
+      --holiday-color: #FF7E7E;
+      --font-family: "Poppins", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      margin: 0; padding: 0;
-      font-family: 'Roboto', sans-serif;
-      background: #f5f5f5;
-      color: #333;
+      font-family: var(--font-family);
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      onselectstart: "return false";
     }
 
     h1 {
       text-align: center;
-      color: #06a0cf;
-      margin-bottom: 20px;
-      font-size: 28px;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      font-weight: 600;
     }
 
-    .container {
+    .main-container {
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      margin: 20px;
-      gap: 20px;
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
       flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .calendar-column {
+      flex: 2;
+      min-width: 300px;
+      max-width: 750px;
+    }
+    
+    .info-column {
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--card-background-color);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px var(--shadow-color);
+      padding: 25px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.15);
     }
 
     #calendarCard {
-      background: #FFFFFF;
-      width: 700px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      overflow: hidden;
+        overflow: hidden;
     }
 
     #calendarHeader {
-      background: #06a0cf;
-      color: #FFFFFF;
-      padding: 15px;
+      background: var(--primary-color);
+      color: var(--text-color-light);
+      padding: 20px;
       text-align: center;
-      font-size: 20px;
+      font-size: 1.5em;
+      font-weight: 500;
       position: relative;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      margin: -25px -25px 20px -25px;
     }
 
-    #calendarHeader span { font-weight: 500; }
+    #calendarHeader span {
+      font-weight: 600;
+    }
+
     #prev, #next {
       background: transparent;
       border: none;
-      color: #FFFFFF;
-      font-size: 20px;
+      color: var(--text-color-light);
+      font-size: 1.8em;
       cursor: pointer;
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
+      padding: 5px 10px;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
     }
-    #prev { left: 15px; }
-    #next { right: 15px; }
+    #prev:hover, #next:hover {
+        background-color: rgba(255,255,255,0.2);
+    }
+
+    #prev { left: 20px; }
+    #next { right: 20px; }
 
     #daysContainer {
       display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      padding: 10px;
+      grid-template-columns: repeat(9, 1fr); /* Do, Lu, Ma, Mi, Ju, Vi, Sa, Sem, F */
+      gap: 5px;
+      padding: 10px 0;
     }
 
-    .header-cell {
-      font-weight: 500; text-align: center; padding: 10px;
-      background: #f0f0f0; border: 1px solid #e0e0e0;
-      min-height: 40px; display: flex;
-      align-items: center; justify-content: center;
+    .header-cell, .week-cell {
+      font-weight: 600;
+      text-align: center;
+      padding: 12px 5px;
+      background-color: #E9EEF2;
+      border-radius: 8px;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
     .week-cell {
-      border: 1px solid #e0e0e0; text-align: center; padding: 10px 0;
-      min-height: 40px; background: #f5f5f5; font-weight: bold;
-      display: flex; align-items: center; justify-content: center;
+        background-color: #DFE6EB;
+        font-weight: 700;
     }
 
     .date {
-      border: 1px solid #e0e0e0; text-align: center;
-      padding: 10px 0; min-height: 40px;
-      cursor: pointer; position: relative;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.3s ease;
+      text-align: center;
+      padding: 10px 0;
+      min-height: 50px;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+      font-weight: 500;
     }
 
-    .date:hover { background: #f0f0f0; }
-    .other-month { color: #bbb; }
-    .today { background: #BBDEFB; }
-    .shift-highlight { background: #C8E6C9 !important; }
-    .custom-highlight { background: #FFF9C4 !important; }
+    .date:hover {
+      background-color: var(--hover-highlight-color);
+      transform: scale(1.05);
+      border-color: var(--primary-color);
+    }
+
+    .other-month {
+      color: #B0BEC5;
+      opacity: 0.7;
+    }
+    .other-month:hover {
+        opacity: 1;
+    }
+
+    .today {
+      background-color: var(--today-highlight-color);
+      border: 1px solid #FFD700;
+      font-weight: 700;
+    }
+
+    .shift-highlight { 
+      background-color: var(--secondary-color) !important; 
+      color: var(--text-color-light);
+    }
+    
+    .custom-highlight { 
+        background-color: rgba(74, 144, 226, 0.3) !important;
+        border: 1px dashed var(--primary-color);
+    }
+    
+    .range-selected {
+      background-color: rgba(80, 227, 194, 0.3) !important;
+      border: 1px solid var(--secondary-color);
+    }
 
     .diagonal-highlight {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: linear-gradient(135deg, var(--highlight-color) 50%, transparent 50%);
+      background: linear-gradient(135deg, var(--highlight-color) 45%, transparent 55%);
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
+      border-radius: 8px;
+      opacity: 0.7;
     }
-
-    .range-selected {
-      background-color: rgba(59, 177, 255, 0.4);
-    }
-
-    #turnoContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 200px;
+    
+    .date span.day-number {
+        font-size: 1.1em;
+        font-weight: 600;
+        z-index: 2;
     }
 
     .horas-disponibles {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      font-size:9px;
-      color: #000;
-      background: rgba(255, 255, 255, 0.462);
-      padding: 1px 1px;
-      border-radius: 3px;
-      z-index: 3;
+      font-size: 0.8em; /* Ligeramente más grande para los iconos */
+      color: var(--text-color);
+      background: rgba(255, 255, 255, 0.7);
+      padding: 2px 5px;
+      border-radius: 4px;
+      margin-top: 3px;
+      z-index: 2;
+      line-height: 1.3;
+      text-align: center;
+    }
+    .horas-disponibles span {
+        display: block;
+        margin: 1px 0;
     }
 
+    #turnoContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
     .turnoCard {
-      background: #FFFFFF;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 20px;
+      border-radius: 12px;
+      padding: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      font-weight: 500;
-      color: #333;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--text-color-light);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+      cursor: pointer;
+      text-align: center;
     }
 
     .turnoCard:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    }
+    .turnoCard.active {
+        opacity: 1;
+        box-shadow: 0 0 0 3px var(--card-background-color), 0 0 0 5px var(--primary-color);
+    }
+    .turnoCard:not(.active) {
+        opacity: 0.7;
     }
 
-    .turnoA { background: #007BFF; color: white; }
-    .turnoB { background: #28A745; color: #FFFFFF; }
-    .turnoALL { background: #a72844; color: #FFFFFF; }
-
-    .infoContainer {
-      width: 100%;
-      max-width: 700px;
-      margin: 20px auto;
+    .turnoA { background-color: var(--shift-a-color); }
+    .turnoB { background-color: var(--shift-b-color); }
+    .turnoC { background-color: var(--shift-c-color); }
+    .turnoALL { background-color: var(--shift-all-color); }
+    
+    .turno-checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background-color: #E9EEF2;
+        border-radius: 8px;
+        margin-top: 10px;
     }
-
-    #infoCard {
-      background: #FFFFFF;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin-top: 20px;
+    .turno-checkbox-container label {
+        font-weight: 500;
+    }
+    #CheckHorasExtras {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary-color);
     }
 
     #infoCard h3 {
       margin-top: 0;
-      margin-bottom: 16px;
-      font-weight: 500;
-      color: #06a0cf;
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: var(--primary-color);
+      font-size: 1.4em;
+      border-bottom: 2px solid var(--secondary-color);
+      padding-bottom: 10px;
     }
 
     .info-row {
       display: flex;
-      flex-direction: row;
-      margin-bottom: 8px;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .info-row:last-child {
+        border-bottom: none;
     }
 
     .info-label {
-      min-width: 140px;
       font-weight: 500;
       color: #555;
+      flex-basis: 45%;
     }
 
     .info-value {
-      color: #333;
+      color: var(--text-color);
       font-weight: 400;
-      margin-left: 8px;
-    }
-
-    .info-divider {
-      border: none;
-      border-top: 1px solid #eee;
-      margin: 12px 0;
+      text-align: right;
+      flex-basis: 50%;
     }
 
     .btn {
-      background-color: #06a0cf;
-      color: #ffffff;
+      background-color: var(--primary-color);
+      color: var(--text-color-light);
       border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
+      padding: 12px 25px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s ease;
+      font-size: 1em;
+      font-weight: 500;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      display: inline-block;
+      text-align: center;
     }
-
 
     .btn:hover {
-      background-color: #0588b3;
+      background-color: #3A7BC8;
+      transform: translateY(-2px);
+    }
+    .btn:active {
+        transform: translateY(0);
     }
 
-    .date-range input[type="date"] {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .rng_date input[type="date"] {
+    input[type="date"],
+    input[type="number"] {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: var(--font-family);
+      font-size: 0.95em;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
       width: 100%;
-      padding: 8px;
       margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    }
+
+    input[type="date"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+      outline: none;
+    }
+    
+    .calculator-section .card {
+        margin-top: 20px;
+    }
+
+    .calculator-section label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .calculator {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .calculator div input[type="number"] {
+        width: calc(100% - 120px);
+        margin-right: 10px;
+    }
+     .calculator div {
+        display: flex;
+        align-items: center;
+     }
+
+    #resultadoFecha {
+        font-weight: 600;
+        color: var(--primary-color);
+        padding: 10px;
+        background-color: #E9EEF2;
+        border-radius: 8px;
+        text-align: center;
     }
 
     .holiday {
-      background: #FFCDD2 !important;
-      color: #B71C1C;
+      background-color: var(--holiday-color) !important;
+      color: var(--text-color-light) !important;
       font-weight: bold;
+    }
+    .holiday .day-number {
+        color: var(--text-color-light) !important;
+    }
+    .holiday .horas-disponibles {
+        color: var(--text-color-light) !important;
+        background: rgba(0,0,0,0.2);
     }
 
     .selected {
-      background-color: rgba(0, 158, 34, 0.37);
-      border: 2px solid #0e9135;
+      background-color: var(--secondary-color) !important;
+      border: 2px solid var(--primary-color) !important;
+      color: var(--text-color-light) !important;
+    }
+    .selected .day-number, .selected .horas-disponibles {
+        color: var(--text-color-light) !important;
     }
 
-    .calculator input[type="number"] {
-      padding: 8px;
-      font-size: 16px;
-      width: 150px;
-      margin-right: 10px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    @media screen and (max-width: 768px) {
-      .container {
+    .card, #daysContainer .date, .turnoCard {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    .day-name-header {
+        grid-column: span 1;
+    }
+    .week-number-header {
+        grid-column: span 1;
+    }
+
+    @media screen and (max-width: 900px) {
+      .main-container {
         flex-direction: column;
         align-items: center;
       }
-      #calendarCard, #turnoContainer, .infoContainer {
-        width: 90%;
+      .calendar-column, .info-column {
+        width: 100%;
+        max-width: 600px;
       }
       #daysContainer {
         grid-template-columns: repeat(9, 1fr);
       }
     }
 
-    @media screen and (max-width: 480px) {
+    @media screen and (max-width: 600px) {
+      h1 { font-size: 2em; }
+      #calendarHeader { font-size: 1.2em; padding: 15px; }
+      #prev, #next { font-size: 1.5em; }
+      .date { min-height: 45px; padding: 8px 0;}
+      .date span.day-number { font-size: 1em; }
+      .horas-disponibles { font-size: 0.7em; } /* Ajustado para iconos */
+      .turnoCard { font-size: 1em; padding: 15px; }
+      #infoCard h3 { font-size: 1.2em; }
+      .info-label, .info-value { font-size: 0.9em; }
+      .btn { padding: 10px 20px; font-size: 0.9em; }
+      input[type="date"], input[type="number"] { font-size: 0.9em; padding: 8px; }
       #daysContainer {
         grid-template-columns: repeat(7, 1fr);
       }
-      .week-cell, .header-cell {
+      .week-cell, .header-cell:nth-child(n+8) {
         display: none;
       }
     }
+
+    @media screen and (max-width: 480px) {
+        body { padding: 10px; }
+        h1 { font-size: 1.8em; margin-bottom: 20px; }
+        .card { padding: 15px; border-radius: 12px; }
+        #calendarHeader { margin: -15px -15px 15px -15px; }
+        #prev { left: 10px; }
+        #next { right: 10px; }
+        .header-cell { padding: 8px 2px; font-size: 0.8em; }
+        .date { min-height: 40px; }
+        .calculator div input[type="number"] {
+            width: calc(100% - 100px);
+        }
+         .horas-disponibles { font-size: 0.65em; } /* Ajustado para iconos en pantallas pequeñas */
+    }
+
   </style>
 </head>
-<body  onselectstart = 'return false'>
-<h1>Calendario de Turnos A y B de Tejeduría</h1>
-<div class="container">
-  <!-- Calendario -->
-  <div id="calendarCard">
-    <div id="calendarHeader">
-      <button id="prev">&#8592;</button>
-      <span id="monthYear"></span>
-      <button id="next">&#8594;</button>
+<body onselectstart="return false">
+  <h1>Calendario de Turnos de Tejeduría</h1>
+  
+  <div class="main-container">
+    <div class="calendar-column">
+      <div id="calendarCard" class="card">
+        <div id="calendarHeader">
+          <button id="prev" aria-label="Mes anterior">&#8592;</button>
+          <span id="monthYear"></span>
+          <button id="next" aria-label="Mes siguiente">&#8594;</button>
+        </div>
+        <div id="daysContainer">
+          <!-- Los días se generan con JavaScript -->
+        </div>
+      </div>
     </div>
-    <div id="daysContainer"></div>
+
+    <div class="info-column">
+      <div id="turnoContainer" class="card">
+        <div class="turnoCard turnoA active" id="turnoACard">Turno A</div>
+        <div class="turnoCard turnoB" id="turnoBCard">Turno B</div>
+        <div class="turnoCard turnoC" id="turnoCCard">Turno C</div>
+        <div class="turnoCard turnoALL" id="turnoALLCard">TODOS</div>
+        <div hidden class="turno-checkbox-container">
+          <label hidden for="CheckHorasExtras">Mostrar Horas Extras (General)</label>
+          <input hidden type="checkbox" id="CheckHorasExtras">
+        </div>
+      </div>
+
+      <div id="infoCard" class="card">
+        <h3>Información Detallada</h3>
+        <div class="info-row">
+          <div class="info-label">Fecha seleccionada:</div>
+          <div class="info-value" id="fechaSeleccionada">--</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Turno A:</div>
+          <div class="info-value" id="turnoAInfo">--</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Turno B:</div>
+          <div class="info-value" id="turnoBInfo">--</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Turno C:</div>
+          <div class="info-value" id="turnoCInfo">--</div>
+        </div>
+        <hr style="margin: 10px 0; border: none; border-top: 1px solid var(--border-color);">
+        <div class="info-row">
+          <div class="info-label">Horas Semanales (Total):</div>
+          <div class="info-value" id="Horas_Week">--</div>
+        </div>
+        <div class="info-row" style="display: none;">
+          <div class="info-label">Horas disponibles:</div>
+          <div class="info-value" id="Horas_disp">--</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Semana Tejeduría (ISO):</div>
+          <div class="info-value" id="isoWeek">--</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Semana Fiscal (TTS):</div>
+          <div class="info-value" id="fiscalWeek">--</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Horas en Rango (Total):</div>
+          <div class="info-value" id="horasRango">--</div>
+        </div>
+      </div>
+
+      <div class="calculator-section card">
+        <h3>Calculadoras</h3>
+        <div class="calculator">
+            <div>
+                <label for="cantidadHoras">Calcular Fecha Final (+Horas):</label>
+            </div>
+            <div>
+                <input type="number" id="cantidadHoras" placeholder="Ej. 24" aria-label="Cantidad de horas"/>
+                <button class="btn" id="calcularFecha">Calcular</button>
+            </div>
+            <div id="resultadoFecha"></div>
+        </div>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+        <div class="calculator date-range-calculator">
+            <label for="startDate">Calcular Horas en Rango:</label>
+            <input type="date" id="startDate" aria-label="Fecha de inicio">
+            <label for="endDate">Fecha Fin:</label>
+            <input type="date" id="endDate" aria-label="Fecha de fin">
+            <button class="btn" id="calcularRango">Calcular Rango</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <!-- Tarjetas de Turnos -->
-  <div id="turnoContainer">
-    <div class="turnoCard turnoA" id="turnoACard">Turno A</div>
-    <div class="turnoCard turnoB" id="turnoBCard">Turno B</div>
-    <div class="turnoCard turnoALL" id="turnoALL">ALL</div>
-    <div class="info-row">
-      <div>🟩🟦</div>
-      <input type="checkbox"  id="CheckHorasExtras">
-    </div>
-  </div>
-</div>
-
-
-<!-- Tarjeta de información mejorada -->
-<div class="infoContainer">
-  <div id="infoCard">
-    <h3>Información de la Fecha Seleccionada</h3>
-    <div class="info-row">
-      <div class="info-label">Fecha seleccionada:</div>
-      <div class="info-value" id="fechaSeleccionada">Selecciona una fecha del calendario...</div>
-    </div>
-    <div class="info-row">
-      <div class="info-label">Turno A:</div>
-      <div class="info-value" id="turnoAInfo">--</div>
-    </div>
-    <div class="info-row">
-      <div class="info-label">Turno B:</div>
-      <div class="info-value" id="turnoBInfo">--</div>
-    </div>
-    <hr class="info-divider" />
-    <!--
-    <div class="info-row">
-      <div class="info-label">Rango de semana:</div>
-      <div class="info-value" id="customBlockInfo">--</div>
-    </div>
-    -->
-    <div class="info-row">
-      <div class="info-label">Horas Semanales:</div>
-      <div class="info-value" id="Horas_Week">--</div>
-    </div>
-    
-    <div hidden class="info-row">
-      <div hidden class="info-label">Horas disponibles:</div>
-      <div hidden class="info-value" id="Horas_disp">--</div>
-    </div>
-    <div class="info-row">
-      <div class="info-label">Semana Tejeduría:</div>
-      <div class="info-value" id="isoWeek">--</div>
-    </div>
-    <div class="info-row">
-      <div class="info-label">Semana TTS:</div>
-      <div class="info-value" id="fiscalWeek">--</div>
-    </div>
-    <div class="info-row">
-      <div class="info-label">Horas en rango:</div>
-      <div class="info-value" id="horasRango">--</div>
-    </div>
-    <button hidden id="customBlockBtn">Mostrar Bloque Custom</button>
-  </div>
-</div>
-
-<div class="infoContainer" >
-  <div id="infoCard" class="date-range">
-
-    <div class="calculator" >
-      <div id="resultadoFecha"></div>
-      <br>
-      <label for="cantidadHoras" style="padding-right: 30px;">Horas a calcular:</label>
-      <input type="number" style="padding-right: 30px;" id="cantidadHoras" placeholder="Ej. 24"/>
-      <button class="btn" id="calcularFecha">Calcular Fecha</button>
-    </div>
-    <br>
-    <label for="startDate">Inicio:</label>
-    <input class="rng_date" type="date" id="startDate">
-    <label for="endDate">Fin:</label>
-    <input class="rng_date" type="date" id="endDate">
-    <button class="btn" id="calcularRango">Calcular Rango</button>
-  </div>
-</div>
-
 
 <script>
   const salvadorHolidays = [
@@ -365,8 +590,8 @@
     { month: 3,  day: 17, label: "Jueves Santo" },
     { month: 3,  day: 18, label: "Viernes Santo" },
     { month: 3,  day: 19, label: "Sábado Santo" },
-  //  { month: 4,  day: 1,  label: "Día del Trabajo" },
-  //  { month: 4,  day: 10, label: "Día de la Madre" },
+    { month: 4,  day: 1,  label: "Día del Trabajo" },
+    { month: 4,  day: 10, label: "Día de la Madre" },
     { month: 5,  day: 17, label: "Día del Padre" },
     { month: 7,  day: 6,  label: "Fiestas Patronales" },
     { month: 8,  day: 15, label: "Día de la Independencia" },
@@ -374,98 +599,109 @@
     { month: 11, day: 25, label: "Navidad" }
   ];
 
-  const monthYearEl = document.getElementById('monthYear');
-  const daysContainer = document.getElementById('daysContainer');
-  const prevButton = document.getElementById('prev');
-  const nextButton = document.getElementById('next');
-  const turnoACard = document.getElementById('turnoACard');
-  const turnoBCard = document.getElementById('turnoBCard');
-  const turnoALL = document.getElementById('turnoALL');
-  const fechaSeleccionadaEl = document.getElementById('fechaSeleccionada');
-  const turnoAInfoEl = document.getElementById('turnoAInfo');
-  const turnoBInfoEl = document.getElementById('turnoBInfo');
-  const WktejeEl = document.getElementById('Wkteje');
-  const Wk_TTSEl = document.getElementById('Wkteje');
-  const customBlockInfoEl = document.getElementById('customBlockInfo');
-  const customBlockBtn = document.getElementById('customBlockBtn');
+  const monthYearEl = document.getElementById("monthYear");
+  const daysContainer = document.getElementById("daysContainer");
+  const prevButton = document.getElementById("prev");
+  const nextButton = document.getElementById("next");
+  
+  const turnoACard = document.getElementById("turnoACard");
+  const turnoBCard = document.getElementById("turnoBCard");
+  const turnoCCard = document.getElementById("turnoCCard");
+  const turnoALLCard = document.getElementById("turnoALLCard");
+  
+  const fechaSeleccionadaEl = document.getElementById("fechaSeleccionada");
+  const turnoAInfoEl = document.getElementById("turnoAInfo");
+  const turnoBInfoEl = document.getElementById("turnoBInfo");
+  const turnoCInfoEl = document.getElementById("turnoCInfo");
+
   const isoWeekEl = document.getElementById("isoWeek");
   const fiscalWeekEl = document.getElementById("fiscalWeek");
-  const HorasWeekEL = document.getElementById("Horas_Week")
-  const HorasDispEL = document.getElementById("Horas_disp")
+  const HorasWeekEL = document.getElementById("Horas_Week");
+  const HorasDispEL = document.getElementById("Horas_disp");
   const horasRangoEl = document.getElementById("horasRango");
-
 
   const startDateInput = document.getElementById("startDate");
   const endDateInput = document.getElementById("endDate");
   const calcularRangoBtn = document.getElementById("calcularRango");
+  const Ck_horasExtras = document.getElementById("CheckHorasExtras");
 
-  const Ck_horasExtras = document.getElementById("CheckHorasExtras")
+  const cantidadHorasInput = document.getElementById("cantidadHoras");
+  const calcularFechaBtn = document.getElementById("calcularFecha");
+  const resultadoFechaEl = document.getElementById("resultadoFecha");
 
-  const referenceDate = new Date(2025, 3, 4); 
+  const referenceDate = new Date(2025, 3, 2);
   const cycleLength = 15;
+  
   const pattern = [
-    { A: 'Extras',   B: 'Activo' },
-    { A: 'Descanso', B: 'Activo' },
-    { A: 'Descanso', B: 'Activo' },
-    { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Extras' },
-    { A: 'Activo',   B: 'Descanso' },
-    { A: 'Activo',   B: 'Descanso' },
-    { A: 'Extras',   B: 'Activo' },
-    { A: 'Descanso', B: 'Activo' },
-    { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Activo' },
-    { A: 'Activo',   B: 'Extras' },
-    { A: 'Activo',   B: 'Descanso' }
+    { C: "Activo",   A: "Activo", B: undefined },
+    { C: "Activo",   A: "Activo", B: undefined },
+    { C: "Activo",   B: "Activo", A: undefined },
+    { C: "Activo",   B: "Activo", A: undefined },
+    { C: "Activo",   B: "Activo", A: undefined },
+    { A: "Activo",   B: "Activo", C: undefined },
+    { A: "Activo",   B: "Activo", C: undefined },
+    { A: "Activo",   C: "Activo", B: undefined },
+    { A: "Extras",   C: "Activo", B: undefined },
+    { A: "Activo",   C: "Activo", B: undefined },
+    { B: "Activo",   C: "Activo", A: undefined },
+    { B: "Activo",   C: "Activo", A: undefined },
+    { B: "Activo",   A: "Activo", C: undefined },
+    { B: "Activo",   A: "Activo", C: undefined },
+    { B: "Activo",   A: "Activo", C: undefined }
   ];
+
   const pattern_DN = [
-    { A: 'Extras',                  B: 'Noche |   13 Horas' },
-    { A: ' ',             B: 'Noche |   13 Horas' },
-    { A: ' ',                  B: 'Noche |   13 Horas' },
-    { A: 'Dia |   11 Horas',   B: 'Noche |   13 Horas' },
-    { A: 'Dia |   11 Horas',   B: 'Noche |  13 Horas' },
-    { A: 'Dia |   11 Horas',   B: 'Extras'     },
-    { A: 'Dia |   11 Horas',   B: ' '     },
-    { A: 'Dia |   11 Horas',   B: ' '     },
-    { A: 'Extras',             B: 'Dia |   11 Horas'   },
-    { A: ' ',                  B: 'Dia |   11 Horas'   },
-    { A: 'Noche |   13 Horas', B: 'Dia |   11 Horas'   },
-    { A: 'Noche |   13 Horas', B: 'Dia |   11 Horas'   },
-    { A: 'Noche |   13 Horas', B: 'Dia |   11 Horas'   },
-    { A: 'Noche |   13 Horas', B: 'Extras'     },
-    { A: 'Noche |   13 Horas', B: ' '     }
+    { C: "Dia |   11 Horas", A: "Noche |   13 Horas", B: "" },
+    { C: "Dia |   11 Horas", A: "Noche |   13 Horas", B: "" },
+    { C: "Dia |   11 Horas", B: "Noche |   13 Horas", A: "" },
+    { C: "Dia |   11 Horas", B: "Noche |   13 Horas", A: "" },
+    { C: "Dia |   11 Horas", B: "Noche |   13 Horas", A: "" },
+    { A: "Dia |   11 Horas", B: "Noche |   13 Horas", C: "" },
+    { A: "Dia |   11 Horas", B: "Noche |   13 Horas", C: "" },
+    { A: "Dia |   11 Horas", C: "Noche |   13 Horas", B: "" },
+    { A: "Dia |   11 Horas", C: "Noche |   13 Horas", B: "" },
+    { A: "Dia |   11 Horas", C: "Noche |   13 Horas", B: "" },
+    { B: "Dia |   11 Horas", C: "Noche |   13 Horas", A: "" },
+    { B: "Dia |   11 Horas", C: "Noche |   13 Horas", A: "" },
+    { B: "Dia |   11 Horas", A: "Noche |   13 Horas", C: "" },
+    { B: "Dia |   11 Horas", A: "Noche |   13 Horas", C: "" },
+    { B: "Dia |   11 Horas", A: "Noche |   13 Horas", C: "" }
   ];
 
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
   let lastSelectedDate = null;
-  let isSelecting = false;
+  let isSelectingRange = false; 
+  let rangeStartDate = null;
+  let rangeEndDate = null;
+  let activeShiftFilter = "ALL";
 
   function daysBetween(date1, date2) {
-    const d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
-    const d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+    const d1 = new Date(Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate()));
+    const d2 = new Date(Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate()));
     return Math.floor((d1 - d2) / (24 * 60 * 60 * 1000));
   }
+
   function isHoliday(dateObj) {
     return salvadorHolidays.some(h => h.month === dateObj.getMonth() && h.day === dateObj.getDate());
   }
+
   function getShiftState(dateObj) {
     const diff = daysBetween(dateObj, referenceDate);
     const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
-    let result = { ...pattern[idx] };
+    let result = { A: pattern[idx].A, B: pattern[idx].B, C: pattern[idx].C }; 
+
     if (isHoliday(dateObj)) {
-      result.A = 'Descanso';
-      result.B = 'Descanso';
+      result.A = "Descanso"; result.B = "Descanso"; result.C = "Descanso";
     } else {
       let tomorrow = new Date(dateObj);
       tomorrow.setDate(tomorrow.getDate() + 1);
       if (isHoliday(tomorrow)) {
         let dn = getShiftState_DN_noOverride(dateObj);
-        if (dn.A.includes('Noche')) result.A = 'Descanso';
-        if (dn.B.includes('Noche')) result.B = 'Descanso';
+        if (dn.A && dn.A.includes("Noche")) result.A = "Descanso";
+        if (dn.B && dn.B.includes("Noche")) result.B = "Descanso";
+        if (dn.C && dn.C.includes("Noche")) result.C = "Descanso";
       }
     }
     return result;
@@ -474,17 +710,18 @@
   function getShiftState_DN(dateObj) {
     const diff = daysBetween(dateObj, referenceDate);
     const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
-    let dn = { ...pattern_DN[idx] };
+    let dn = { A: pattern_DN[idx].A, B: pattern_DN[idx].B, C: pattern_DN[idx].C };
+
     if (isHoliday(dateObj)) {
-      dn.A = '';
-      dn.B = '';
+      dn.A = ""; dn.B = ""; dn.C = "";
     } else {
       let tomorrow = new Date(dateObj);
       tomorrow.setDate(tomorrow.getDate() + 1);
       if (isHoliday(tomorrow)) {
         let dnOriginal = getShiftState_DN_noOverride(dateObj);
-        if (dnOriginal.A.includes('Noche')) dn.A = '';
-        if (dnOriginal.B.includes('Noche')) dn.B = '';
+        if (dnOriginal.A && dnOriginal.A.includes("Noche")) dn.A = "";
+        if (dnOriginal.B && dnOriginal.B.includes("Noche")) dn.B = "";
+        if (dnOriginal.C && dnOriginal.C.includes("Noche")) dn.C = "";
       }
     }
     return dn;
@@ -493,581 +730,344 @@
   function getShiftState_DN_noOverride(dateObj) {
     const diff = daysBetween(dateObj, referenceDate);
     const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
-    return { ...pattern_DN[idx] };
+    return { A: pattern_DN[idx].A, B: pattern_DN[idx].B, C: pattern_DN[idx].C };
   }
+
   function getISOWeek(date) {
     let d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7) + 1;
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
   }
+
   function getFiscalWeek(date) {
     let fyStart = new Date(date.getFullYear(), 6, 1);
     if (date < fyStart) { fyStart = new Date(date.getFullYear() - 1, 6, 1); }
     const dayDiff = Math.floor((date - fyStart) / (1000 * 60 * 60 * 24));
-    return Math.floor(dayDiff / 7) +2;
+    return Math.floor(dayDiff / 7) + 1;
+  }
+  
+  function extractHours(shiftText) {
+      if (!shiftText || typeof shiftText !== "string") return 0;
+      const match = shiftText.match(/(\d+)\s*Horas/);
+      return match ? parseInt(match[1]) : 0;
   }
 
-  function computeBlockDates(turn, selectedDate) {
-    const diff = daysBetween(selectedDate, referenceDate);
-    const idx = ((diff % cycleLength) + cycleLength) % cycleLength;
-    const currentState = pattern[idx][turn];
-    let blockStartIndex = idx;
-    let blockEndIndex = idx;
-    while (blockStartIndex > 0 && pattern[blockStartIndex - 1][turn] === currentState) {
-      blockStartIndex--;
-    }
-    while (blockEndIndex < cycleLength - 1 && pattern[blockEndIndex + 1][turn] === currentState) {
-      blockEndIndex++;
-    }
-    let blockStart = new Date(selectedDate);
-    blockStart.setDate(selectedDate.getDate() - (idx - blockStartIndex));
-    let blockEnd = new Date(selectedDate);
-    // Se eliminó el +1 para que blockEnd no se adelante
-    blockEnd.setDate(selectedDate.getDate() + (blockEndIndex - idx));
-    return { blockStart, blockEnd, state: currentState };
+  function calculateHoursInDate(date) {
+    if (isHoliday(date)) return 0;
+    const shiftDN = getShiftState_DN(date);
+    let hours = 0;
+    if (shiftDN.A) hours += extractHours(shiftDN.A);
+    if (shiftDN.B) hours += extractHours(shiftDN.B);
+    if (shiftDN.C) hours += extractHours(shiftDN.C);
+    return hours;
   }
 
- 
-function agregarHorasDisponibles(dateObj, dayCell) {
-  // Obtenemos el patrón de día/noche para ese día
-  let dn = getShiftState_DN(dateObj);
-  // Sumamos las horas disponibles para turno A y B
-  let horas = extraerHoras(dn.A) + extraerHoras(dn.B);
-  // Creamos el span para mostrar las horas
-  let span = document.createElement("span");
-  span.classList.add("horas-disponibles");
-  span.textContent = `${horas} h`;
-  // Lo agregamos a la celda (se posicionará en la esquina superior izquierda)
-  dayCell.appendChild(span);
-}
+  function renderCalendar() {
+    daysContainer.innerHTML = "";
+    monthYearEl.textContent = `${currentDate.toLocaleString("es-ES", { month: "long" })} ${currentYear}`;
 
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
 
-function extraerHoras(str) {
-  const match = str.match(/(\d+)\s*Horas/i);
-  return match ? parseInt(match[1], 10) : 0;
-}
+    let startDate = new Date(firstDayOfMonth);
+    startDate.setDate(startDate.getDate() - startDate.getDay());
 
+    let daysInCurrentMonthForFirstWeek = 0;
+    for (let i = 0; i < 7; i++) {
+        let dayInWeek = new Date(startDate);
+        dayInWeek.setDate(startDate.getDate() + i);
+        if (dayInWeek.getMonth() === currentMonth) {
+            daysInCurrentMonthForFirstWeek++;
+        }
+    }
+    if (daysInCurrentMonthForFirstWeek < 4) {
+        startDate.setDate(startDate.getDate() + 7);
+    }
 
-// Calcula, para la semana en la que se encuentra la fecha seleccionada,
-function calcularHorasSemana(selectedDate) {
+    let endDate = new Date(lastDayOfMonth);
+    endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
 
-  let offset = selectedDate.getDay() - 4;
-if (offset < 0) offset += 7;
-let inicioSemana = new Date(
-  selectedDate.getFullYear(),
-  selectedDate.getMonth(),
-  selectedDate.getDate() - offset
-);
-let finSemana = new Date(inicioSemana);
-finSemana.setDate(inicioSemana.getDate() + 7);
-
-  
-  let totalHoras = 0;
-  let horasRestantes = 0;
-  let hoy = new Date();
-  
-  for (let i = 0; i < 7; i++) {
-    let dia = new Date(inicioSemana);
-    dia.setDate(inicioSemana.getDate() + i);
-    let dn = getShiftState_DN(dia); 
-    let horasDia = extraerHoras(dn.A);
-    totalHoras += horasDia;
-
-    let horasDiaB = extraerHoras(dn.B);
+    let daysInCurrentMonthForLastWeek = 0;
+    for (let i = 0; i < 7; i++) {
+        let dayInWeek = new Date(endDate);
+        dayInWeek.setDate(endDate.getDate() - (6 - i));
+        if (dayInWeek.getMonth() === currentMonth) {
+            daysInCurrentMonthForLastWeek++;
+        }
+    }
+    if (daysInCurrentMonthForLastWeek < 4) {
+        endDate.setDate(endDate.getDate() - 7);
+    }
     
-    totalHoras += horasDiaB
-
-    // Para horas restantes:
-    let hoySolo = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    if (dia < hoySolo) {
-      horasRestantes += 0;
-    } else if (dia.toDateString() === hoySolo.toDateString()) {
-      // Para el día actual, calculamos la fracción de día restante:
-      let inicioDia = new Date(dia);
-      inicioDia.setHours(0,0,0,0);
-      let finDia = new Date(dia);
-      finDia.setHours(23,59,59,999);
-      let fraccionRestante = (finDia - hoy) / (finDia - inicioDia);
-      horasRestantes += horasDia * fraccionRestante;
-    } else {
-      // Para días futuros, se suman todas las horas
-      horasRestantes += horasDia;
+    if (startDate > firstDayOfMonth) {
+        startDate = new Date(firstDayOfMonth);
+        startDate.setDate(startDate.getDate() - startDate.getDay());
     }
-  }
-  return { total: totalHoras, restantes: horasRestantes };
-}
+    if (endDate < lastDayOfMonth) {
+        endDate = new Date(lastDayOfMonth);
+        endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+    }
 
-function onFechaSeleccionada(selectedDate) {
-
-  let shiftState = getShiftState(selectedDate);
-  let shiftStateDN = getShiftState_DN(selectedDate);
-  turnoAInfoEl.textContent = `${shiftState.A} | ${shiftStateDN.A}`;
-  turnoBInfoEl.textContent = `${shiftState.B} | ${shiftStateDN.B}`;
-  turnoACard.style.opacity = (shiftState.A === 'Activo') ? 1 : 0.4;
-  turnoBCard.style.opacity = (shiftState.B === 'Activo') ? 1 : 0.4;
-  
-  // Calcula las horas disponibles y restantes para la semana
-  let horasInfo = calcularHorasSemana(selectedDate);
-  //document.getElementById("horasRestantes").textContent = `${horasInfo.restantes} hrs restantes de un total de ${horasInfo.total} hrs`;
-
-  console.log(horasInfo.total);
-  console.log(horasInfo.restantes);
-
-  HorasDispEL.textContent = horasInfo.restantes
-  HorasWeekEL.textContent = horasInfo.total
-
-}
-
-  function highlightCustomBlock(selectedDate) {
-    let selectedSunday = new Date(selectedDate);
-    selectedSunday.setHours(0,0,0,0);
-    selectedSunday.setDate(selectedDate.getDate() - selectedDate.getDay());
-    // Semana anterior: jueves = domingo de la semana anterior + 4 días
-    let prevSunday = new Date(selectedSunday);
-    prevSunday.setDate(selectedSunday.getDate() - 7);
-    let blockStart = new Date(prevSunday);
-    blockStart.setDate(prevSunday.getDate() + 3); // jueves de la semana anterior
-    // Semana actual: miércoles = domingo actual + 3 días
-    let blockEnd = new Date(selectedSunday);
-    blockEnd.setDate(selectedSunday.getDate() + 2);  // miércoles de la semana actual
-    const formatDate = d => `${blockStart.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-    //customBlockInfoEl.textContent = `${formatDate(new Date(blockStart.getFullYear(), blockStart.getMonth(), blockStart.getDate() + 2))} - ${formatDate(new Date(blockEnd.getFullYear(), blockEnd.getMonth(), blockEnd.getDate() + 2))}`;
-    document.querySelectorAll("#daysContainer .date").forEach(cell => {
-      const cellDateStr = cell.dataset.date;
-      if (cellDateStr) {
-        let cellDate = new Date(cellDateStr);
-        let testDate = blockStart.toLocaleString;
-        let tesDate = blockEnd.toLocaleString;
-        cellDate.setHours(0,0,0,0);
-        if (cellDate >= blockStart && cellDate <= blockEnd) {
-          cell.classList.add("custom-highlight");
-        } else {
-          cell.classList.remove("custom-highlight");
-        }
-      }
+    const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Sem", "F"];
+    dayNames.forEach(name => {
+      const headerCell = document.createElement("div");
+      headerCell.classList.add("header-cell");
+      headerCell.textContent = name;
+      daysContainer.appendChild(headerCell);
     });
-  }
 
-  function colocarIconosSolLuna(dateObj, dayCell, turn) {
-    dayCell.querySelectorAll(".icon-turno").forEach(icon => icon.remove());
+    let currentDateIter = new Date(startDate);
+    while (currentDateIter <= endDate) {
+      for (let i = 0; i < 7; i++) {
+        const dateObj = new Date(currentDateIter);
+        const dateEl = document.createElement("div");
+        dateEl.classList.add("date");
+        dateEl.innerHTML = `<span class="day-number">${dateObj.getDate()}</span>`;
 
-    // Obtenemos Dia/Noche para A y B
-    let dn = getShiftState_DN(dateObj);
-
-    // Turno A
-    if(turn === "A"){
-      if (dn.A.includes("Dia")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "☀️";
-        dayCell.appendChild(iconA);
-        
-      } else if (dn.A.includes("Noche")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🌑";
-        dayCell.appendChild(iconA);
-      }
-    }else if (turn === "B"){
-      // Turno B
-      if (dn.B.includes("Dia")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "☀️";
-        dayCell.appendChild(iconB);
-      } else if (dn.B.includes("Noche")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "🌑";
-        dayCell.appendChild(iconB);
-      }
-    }
-    else{
-
-      if (dn.A.includes("Dia")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "☀️";
-        dayCell.appendChild(iconA);
-      } else if (dn.A.includes("Noche")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🌑";
-        dayCell.appendChild(iconA);
-      }
-      if (dn.B.includes("Dia")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "☀️";
-        dayCell.appendChild(iconB);
-      } else if (dn.B.includes("Noche")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "🌑";
-        dayCell.appendChild(iconB);
-      } 
-    }
-}
-
-
-function mostrar_turnos(dateObj, dayCell, turn) {
-    dayCell.querySelectorAll(".icon-turno").forEach(icon => icon.remove());
-
-    // Obtenemos Dia/Noche para A y B
-    let dn = getShiftState_DN(dateObj);
-
-    // Turno A
-    if(turn === "A"){
-      if (dn.A.includes("Dia")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "☀️";
-        dayCell.appendChild(iconA);
-        
-      } else if (dn.A.includes("Noche")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🌑";
-        dayCell.appendChild(iconA);
-      } else if(dn.A.includes("Extras")){
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🟦";
-        dayCell.appendChild(iconA);
-      }
-    }else if (turn === "B"){
-      // Turno B
-      if (dn.B.includes("Dia")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "☀️";
-        dayCell.appendChild(iconB);
-      } else if (dn.B.includes("Noche")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "🌑";
-        dayCell.appendChild(iconB);
-      }else if(dn.B.includes("Extras")){
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🟩";
-        dayCell.appendChild(iconA);
-      }
-    }
-    else{
-
-      if (dn.A.includes("Dia")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "☀️";
-        dayCell.appendChild(iconA);
-      } else if (dn.A.includes("Noche")) {
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🌑";
-        dayCell.appendChild(iconA);
-      } else if(dn.A.includes("Extras")){
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🟦";
-        dayCell.appendChild(iconA);
-      }
-
-      if (dn.B.includes("Dia")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "☀️";
-        dayCell.appendChild(iconB);
-      } else if (dn.B.includes("Noche")) {
-        let iconB = document.createElement("span");
-        iconB.classList.add("icon-turno", "icon-b");
-        iconB.textContent = "🌑";
-        dayCell.appendChild(iconB);
-      } else if(dn.B.includes("Extras")){
-        let iconA = document.createElement("span");
-        iconA.classList.add("icon-turno", "icon-a");
-        iconA.textContent = "🟩";
-        dayCell.appendChild(iconA);
-      }
-
-    }
-}
-
-function calcularHorasRango(start, end) {
-    let total = 0;
-    let current = new Date(start);
-    current.setDate(current.getDate() + 1); // Sumar un día a la fecha de inicio
-    let endDate = new Date(end);
-    endDate.setDate(endDate.getDate() + 1); // Sumar un día a la fecha de fin
-
-    while(current <= endDate) {
-      let dn = getShiftState_DN(current);
-      let horasDia = extraerHoras(dn.A) + extraerHoras(dn.B);
-      total += horasDia;
-      current.setDate(current.getDate() + 1);
-    }
-    return total;
-}
-
-  
-  function actualizarRangoSeleccionado() {
-    document.querySelectorAll("#daysContainer .date").forEach(cell => cell.classList.remove("range-selected"));
-    document.querySelectorAll("#daysContainer .date").forEach(cell => {
-      let cellDate = new Date(cell.dataset.date);
-      cellDate.setHours(0,0,0,0);
-      if (cellDate >= rangeStart && cellDate <= rangeEnd) {
-        cell.classList.add("range-selected");
-      }
-    });
-    const totalHoras = calcularHorasRango(rangeStart, rangeEnd);
-    horasRangoEl.textContent = `${totalHoras} hrs`;
-  }
-
-  function addDragListeners(dayCell, currentCellDate) {
-    dayCell.addEventListener("mousedown", () => {
-      isSelecting = true;
-      rangeStart = new Date(currentCellDate);
-      rangeEnd = new Date(currentCellDate);
-      document.querySelectorAll("#daysContainer .date").forEach(c => c.classList.remove("selected", "range-selected"));
-      dayCell.classList.add("selected", "range-selected");
-    });
-    dayCell.addEventListener("mouseover", () => {
-      if(isSelecting) {
-        rangeEnd = new Date(currentCellDate);
-        if(rangeEnd < rangeStart) {
-          let temp = rangeStart;
-          rangeStart = rangeEnd;
-          rangeEnd = temp;
+        if (dateObj.getMonth() !== currentMonth) {
+          dateEl.classList.add("other-month");
         }
-        actualizarRangoSeleccionado();
-      }
-    });
-  }
-  document.addEventListener("mouseup", () => {
-    if(isSelecting) {
-      isSelecting = false;
-    }
-  });
 
+        const shiftState = getShiftState(dateObj);
+        const shiftDN = getShiftState_DN(dateObj);
+        let displayHoursArr = [];
 
-  function actualizarRangoPorSelector() {
-      let startVal = startDateInput.value;
-      let endVal = endDateInput.value;
-      if (!startVal || !endVal) {
-        alert("Seleccione ambas fechas.");
-        return;
-      }
-      rangeStart = new Date(startVal);
-      rangeEnd = new Date(endVal);
-      if (rangeEnd < rangeStart) {
-        let temp = rangeStart;
-        rangeStart = rangeEnd;
-        rangeEnd = temp;
-      }
-      fechaSeleccionadaEl.textContent = `${rangeStart.getDate()}/${rangeStart.getMonth()+1}/${rangeStart.getFullYear()} - ${rangeEnd.getDate()}/${rangeEnd.getMonth()+1}/${rangeEnd.getFullYear()}`;
-      const totalHoras = calcularHorasRango(rangeStart, rangeEnd);
-      horasRangoEl.textContent = `${totalHoras} hrs`;
-      document.querySelectorAll("#daysContainer .date").forEach(cell => cell.classList.remove("range-selected"));
-      document.querySelectorAll("#daysContainer .date").forEach(cell => {
-        let cellDate = new Date(cell.dataset.date);
-        cellDate.setHours(0,0,0,0);
-        if (cellDate >= rangeStart && cellDate <= rangeEnd) {
-          cell.classList.add("range-selected");
-        }
-      });
-      isoWeekEl.textContent = getISOWeek(rangeStart);
-      fiscalWeekEl.textContent = getFiscalWeek(rangeStart);
-    }
+        const processShift = (shiftKey, color) => {
+          if (activeShiftFilter === "ALL" || activeShiftFilter === shiftKey) {
+            let contentToShow = "";
+            const hours = extractHours(shiftDN[shiftKey]);
 
-  calcularRangoBtn.addEventListener("click", actualizarRangoPorSelector);
-  Ck_horasExtras.addEventListener("click", () => renderCalendar(currentMonth, currentYear));
-
-  function renderCalendar(month, year) {
-  daysContainer.innerHTML = "";
-  daysContainer.style.gridTemplateColumns = "repeat(9, 1fr)";
-  
-  // Encabezados
-  const headerCells = ["WK", "WK TTS", "Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-  headerCells.forEach(text => {
-    let cell = document.createElement("div");
-    cell.textContent = text;
-    cell.classList.add("header-cell");
-    daysContainer.appendChild(cell);
-  });
-  
-  let startOfMonth = new Date(year, month, 1);
-  let endOfMonth = new Date(year, month + 1, 0);
-  let gridStartDate = new Date(year, month, 1 - startOfMonth.getDay());
-  let currentWeekStart = new Date(gridStartDate);
-  
-  while (true) {
-    let weekDates = [];
-    for (let d = 0; d < 7; d++) {
-      let dt = new Date(currentWeekStart);
-      dt.setDate(currentWeekStart.getDate() + d);
-      weekDates.push(dt);
-    }
-    let countCurrent = weekDates.filter(dt => dt.getMonth() === month).length;
-    
-    if (countCurrent >= 4) {
-      let isoWeekCell = document.createElement("div");
-      isoWeekCell.classList.add("week-cell");
-      isoWeekCell.textContent = getISOWeek(currentWeekStart);
-      daysContainer.appendChild(isoWeekCell);
-      
-      let fiscalCell = document.createElement("div");
-      fiscalCell.classList.add("week-cell");
-      fiscalCell.textContent = getFiscalWeek(currentWeekStart);
-      daysContainer.appendChild(fiscalCell);
-      
-      // Renderiza cada día de la semana
-      weekDates.forEach(dt => {
-        let dayCell = document.createElement("div");
-        dayCell.classList.add("date");
-        dayCell.textContent = dt.getDate();
-        dayCell.dataset.date = dt.toISOString().split("T")[0];
-        if (dt.getMonth() !== month) {
-          dayCell.classList.add("other-month");
-        }
-        let today = new Date();
-        if (
-          dt.getDate() === today.getDate() &&
-          dt.getMonth() === today.getMonth() &&
-          dt.getFullYear() === today.getFullYear()
-        ) {
-          dayCell.classList.add("today");
-        }
-        if (isHoliday(dt)) {
-          dayCell.classList.add("holiday");
-          let found = salvadorHolidays.find(h =>
-            h.month === dt.getMonth() && h.day === dt.getDate()
-          );
-          if (found) {
-            dayCell.title = found.label;
+            if (Ck_horasExtras.checked) {
+              if (shiftState[shiftKey] === "Extras") {
+                contentToShow = "Ext";
+              } else if (shiftDN[shiftKey] && shiftDN[shiftKey].trim() && !shiftDN[shiftKey].includes("Extras")) {
+                contentToShow = shiftDN[shiftKey].replace(/\s*\|\s*\d+\s*Horas/, "");
+              }
+            } else {
+              if (shiftState[shiftKey] === "Activo") {
+                if (shiftKey === 'C') {
+                  if (hours > 0) contentToShow = "🌗"; // Media luna para Turno C (genérico)
+                } else { // Turnos A y B
+                  if (hours === 11) contentToShow = "☀️"; // Sol para 11h
+                  else if (hours === 13) contentToShow = "🌙"; // Luna para 13h
+                }
+              }
+            }
+            
+            if (contentToShow) {
+              displayHoursArr.push(`<span style="color:${color};">${shiftKey}:${contentToShow}</span>`);
+            }
           }
-        }
-        // Coloca íconos de Sol y Luna
-        //colocarIconosSolLuna(dt, dayCell);
+        };
 
-
-        if (Ck_horasExtras.checked === false) {
-          turnoACard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'A');('A'); });
-          turnoBCard.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'B');('B'); });
-          turnoALL.addEventListener("click", () => { colocarIconosSolLuna(dt, dayCell, 'C');('C'); });
-        }else{
-          turnoACard.addEventListener("click", () => { mostrar_turnos(dt, dayCell, 'A');('A'); });
-          turnoBCard.addEventListener("click", () => { mostrar_turnos(dt, dayCell, 'B');('B'); });
-          turnoALL.addEventListener("click", () => { mostrar_turnos(dt, dayCell, 'C');('C'); });
+        processShift("A", "var(--shift-a-color)");
+        processShift("B", "var(--shift-b-color)");
+        processShift("C", "var(--shift-c-color)");
+        
+        if(displayHoursArr.length > 0){
+          const horasEl = document.createElement("div");
+          horasEl.classList.add("horas-disponibles");
+          horasEl.innerHTML = displayHoursArr.join(" ");
+          dateEl.appendChild(horasEl);
         }
 
-        agregarHorasDisponibles(dt, dayCell);
-        
-        dayCell.addEventListener("click", () => {
-          document.querySelectorAll("#daysContainer .date").forEach(cell => {
-            cell.classList.remove("selected");
-          });
-          dayCell.classList.add("selected");
-          const selectedDate = new Date(dt);
-          selectedDate.setHours(0,0,0,0);
-          lastSelectedDate = selectedDate;
-          let shiftState = getShiftState(selectedDate);
-          let shiftStateDN = getShiftState_DN(selectedDate);
-          fechaSeleccionadaEl.textContent = `${selectedDate.getDate()}/${selectedDate.getMonth()+1}/${selectedDate.getFullYear()}`;
-          turnoAInfoEl.textContent = `${shiftState.A} | ${shiftStateDN.A}`;
-          turnoBInfoEl.textContent = `${shiftState.B} | ${shiftStateDN.B}`;
-          turnoACard.style.opacity = (shiftState.A === 'Activo') ? 1 : 0.4;
-          turnoBCard.style.opacity = (shiftState.B === 'Activo') ? 1 : 0.4;
-          highlightCustomBlock(lastSelectedDate);
-          isoWeekEl.textContent = getISOWeek(selectedDate) - 1;
-          fiscalWeekEl.textContent = getFiscalWeek(selectedDate) - 1;
-          onFechaSeleccionada(selectedDate);
-        });
-        
-        daysContainer.appendChild(dayCell);
-      });
+        if (dateObj.toDateString() === new Date().toDateString()) dateEl.classList.add("today");
+        if (isHoliday(dateObj)) {
+          dateEl.classList.add("holiday");
+          dateEl.title = salvadorHolidays.find(h => h.month === dateObj.getMonth() && h.day === dateObj.getDate()).label;
+        }
+        if (rangeStartDate && rangeEndDate) {
+          const currentDateLoop = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+          const rStart = new Date(rangeStartDate.getFullYear(), rangeStartDate.getMonth(), rangeStartDate.getDate());
+          const rEnd = new Date(rangeEndDate.getFullYear(), rangeEndDate.getMonth(), rangeEndDate.getDate());
+          if (currentDateLoop >= rStart && currentDateLoop <= rEnd) dateEl.classList.add("range-selected");
+        }
+        if (lastSelectedDate && dateObj.toDateString() === lastSelectedDate.toDateString()){
+          dateEl.classList.add("selected");
+        }
+
+        dateEl.addEventListener("click", () => handleDateClick(dateObj, dateEl));
+        daysContainer.appendChild(dateEl);
+        currentDateIter.setDate(currentDateIter.getDate() + 1);
+      }
+      const endOfWeekDate = new Date(currentDateIter);
+      endOfWeekDate.setDate(currentDateIter.getDate() - 1);
+      const weekCell = document.createElement("div");
+      weekCell.classList.add("week-cell");
+      weekCell.textContent = getISOWeek(endOfWeekDate);
+      daysContainer.appendChild(weekCell);
+
+      const fiscalCell = document.createElement("div");
+      fiscalCell.classList.add("week-cell");
+      fiscalCell.textContent = getFiscalWeek(endOfWeekDate);
+      daysContainer.appendChild(fiscalCell);
     }
+  }
+
+  function handleDateClick(dateObj, clickedEl) {
+    lastSelectedDate = dateObj;
+    fechaSeleccionadaEl.textContent = dateObj.toLocaleDateString("es-ES", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    const shiftState = getShiftState(dateObj);
+    const shiftDN = getShiftState_DN(dateObj);
     
-    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-    if (currentWeekStart > endOfMonth) break;
+    turnoAInfoEl.textContent = `${shiftState.A || "--"} (${shiftDN.A && shiftDN.A.trim() ? shiftDN.A : "N/A"})`;
+    turnoBInfoEl.textContent = `${shiftState.B || "--"} (${shiftDN.B && shiftDN.B.trim() ? shiftDN.B : "N/A"})`;
+    turnoCInfoEl.textContent = `${shiftState.C || "--"} (${shiftDN.C && shiftDN.C.trim() ? shiftDN.C : "N/A"})`;
+    
+    isoWeekEl.textContent = getISOWeek(dateObj);
+    fiscalWeekEl.textContent = getFiscalWeek(dateObj);
+    
+    let weekStart = new Date(dateObj);
+    let dayOfWeek = weekStart.getDay();
+    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    let weeklyHours = 0;
+    for(let i=0; i<7; i++){
+        let dayInWeek = new Date(weekStart);
+        dayInWeek.setDate(weekStart.getDate() + i);
+        weeklyHours += calculateHoursInDate(dayInWeek);
+    }
+    HorasWeekEL.textContent = weeklyHours + " horas";
+
+    document.querySelectorAll(".date.selected").forEach(el => el.classList.remove("selected"));
+    if(clickedEl) clickedEl.classList.add("selected");
+    
+    if (!isSelectingRange) {
+        rangeStartDate = dateObj;
+        rangeEndDate = null;
+        isSelectingRange = true;
+        startDateInput.valueAsDate = dateObj;
+        endDateInput.value = "";
+        document.querySelectorAll(".date.range-selected").forEach(el => el.classList.remove("range-selected"));
+    } else {
+        if (dateObj >= rangeStartDate) {
+            rangeEndDate = dateObj;
+            endDateInput.valueAsDate = dateObj;
+            calculateAndDisplayRangeHours();
+        } else { 
+            rangeStartDate = dateObj;
+            rangeEndDate = null;
+            startDateInput.valueAsDate = dateObj;
+            endDateInput.value = "";
+            document.querySelectorAll(".date.range-selected").forEach(el => el.classList.remove("range-selected"));
+        }
+        isSelectingRange = false;
+    }
+    renderCalendar();
   }
   
-  const monthNames = [
-    'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
-  ];
-  monthYearEl.textContent = `${monthNames[month]} ${year}`;
-}
-
-  function highlightTurnDays(turn) {
-    document.querySelectorAll("#daysContainer .date").forEach(cell => {
-      let existingElement = cell.querySelector('.diagonal-highlight');
-      if (existingElement) { existingElement.remove(); }
-      let cellDateStr = cell.dataset.date;
-      if (cellDateStr) {
-        let cellDate = new Date(cellDateStr);
-        cellDate.setDate(cellDate.getDate() + 1);
-
-        cellDate.setHours(0,0,0,0);
-        let state = getShiftState(cellDate);
-        if (state[turn] === 'Activo') {
-          let span = document.createElement("span");
-          span.classList.add("diagonal-highlight");
-          span.style.setProperty('--highlight-color', (turn === 'A') ? "#ffc10793" : "#03a8f46c");
-          cell.appendChild(span);
+  function calculateAndDisplayRangeHours(){
+    if(rangeStartDate && rangeEndDate && rangeEndDate >= rangeStartDate){
+        let totalHoursInRange = 0;
+        let currentDateIter = new Date(rangeStartDate);
+        while(currentDateIter <= rangeEndDate){
+            totalHoursInRange += calculateHoursInDate(currentDateIter);
+            currentDateIter.setDate(currentDateIter.getDate() + 1);
         }
-      }
-    });
+        horasRangoEl.textContent = totalHoursInRange + " horas";
+    } else {
+        horasRangoEl.textContent = "--";
+    }
   }
 
-  customBlockBtn.addEventListener("click", () => {
-    if (lastSelectedDate) {
-      highlightCustomBlock(lastSelectedDate);
-    } else {
-      alert("Selecciona primero una fecha del calendario.");
-    }
-  });
   prevButton.addEventListener("click", () => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar(currentMonth, currentYear);
-    if (lastSelectedDate) highlightCustomBlock(lastSelectedDate);
+    currentDate = new Date(currentYear, currentMonth, 1);
+    renderCalendar();
   });
+
   nextButton.addEventListener("click", () => {
     currentMonth++;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    renderCalendar(currentMonth, currentYear);
-    if (lastSelectedDate) highlightCustomBlock(lastSelectedDate);
+    currentDate = new Date(currentYear, currentMonth, 1);
+    renderCalendar();
   });
+  
+  Ck_horasExtras.addEventListener("change", renderCalendar);
 
-  renderCalendar(currentMonth, currentYear);
-
-
-  document.getElementById("calcularFecha").addEventListener("click", () => {
-      const cantidad = parseFloat(document.getElementById("cantidadHoras").value);
-      if (isNaN(cantidad) || cantidad <= 0) {
-        alert("Ingrese una cantidad válida de horas.");
-        return;
-      }
-      const hoy = new Date();
-      const fechaFinal = calcularFechaPorHoras(cantidad, hoy);
-      document.getElementById("resultadoFecha").textContent = "Fecha alcanzada: " + fechaFinal.toLocaleDateString();
-    });
-    
-    function calcularFechaPorHoras(cantidad, startDate) {
-      let total = 0;
-      let current = new Date(startDate);
-      while (total < cantidad) {
-        let dn = getShiftState_DN(current);
-        let horas = extraerHoras(dn.A) + extraerHoras(dn.B);
-        total += horas;
-        if (total >= cantidad) break;
-        current.setDate(current.getDate() + 1);
-      }
-      return current;
+  calcularRangoBtn.addEventListener("click", () => {
+    const start = startDateInput.valueAsDate;
+    const end = endDateInput.valueAsDate;
+    if (start && end && end >= start) {
+        rangeStartDate = start;
+        rangeEndDate = end;
+        calculateAndDisplayRangeHours();
+        renderCalendar();
+    } else {
+        horasRangoEl.textContent = "Fechas inválidas";
+        rangeStartDate = null;
+        rangeEndDate = null;
+        renderCalendar();
+    }
+  });
+  
+  calcularFechaBtn.addEventListener("click", () => {
+    const horas = parseInt(cantidadHorasInput.value);
+    if (isNaN(horas) || horas <= 0) {
+      resultadoFechaEl.textContent = "Ingrese un número de horas válido.";
+      return;
+    }
+    if (!lastSelectedDate) {
+      resultadoFechaEl.textContent = "Seleccione una fecha de inicio en el calendario.";
+      return;
     }
 
+    let fechaActual = new Date(lastSelectedDate);
+    let horasRestantes = horas;
+    let diasContados = 0;
+
+    while (horasRestantes > 0 && diasContados < 3650) {
+        const horasDelDia = calculateHoursInDate(fechaActual);
+        if (horasDelDia > 0) {
+            if (horasRestantes <= horasDelDia) {
+                horasRestantes = 0;
+            } else {
+                horasRestantes -= horasDelDia;
+            }
+        }
+        if (horasRestantes > 0) {
+            fechaActual.setDate(fechaActual.getDate() + 1);
+        }
+        diasContados++;
+    }
+
+    if (horasRestantes === 0) {
+        resultadoFechaEl.textContent = `Fecha final estimada: ${fechaActual.toLocaleDateString("es-ES", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`;
+    } else {
+        resultadoFechaEl.textContent = "No se pudo calcular la fecha (límite excedido).";
+    }
+  });
+
+  const allShiftCards = [turnoACard, turnoBCard, turnoCCard, turnoALLCard];
+  allShiftCards.forEach(card => {
+      card.addEventListener("click", () => {
+          allShiftCards.forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+          if (card.id === "turnoACard") activeShiftFilter = "A";
+          else if (card.id === "turnoBCard") activeShiftFilter = "B";
+          else if (card.id === "turnoCCard") activeShiftFilter = "C";
+          else if (card.id === "turnoALLCard") activeShiftFilter = "ALL";
+          renderCalendar();
+      });
+  });
+
+  turnoALLCard.classList.add("active");
+  activeShiftFilter = "ALL";
+  renderCalendar();
+  if (lastSelectedDate) handleDateClick(lastSelectedDate, null);
+  else {
+    fechaSeleccionadaEl.textContent = "Selecciona una fecha...";
+    turnoAInfoEl.textContent = "--";
+    turnoBInfoEl.textContent = "--";
+    turnoCInfoEl.textContent = "--";
+    isoWeekEl.textContent = "--";
+    fiscalWeekEl.textContent = "--";
+    HorasWeekEL.textContent = "--";
+    horasRangoEl.textContent = "--";
+  }
 
 </script>
 </body>
 </html>
+
