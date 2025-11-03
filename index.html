@@ -972,7 +972,7 @@
             totalHoursInRange += calculateHoursInDate(currentDateIter);
             currentDateIter.setDate(currentDateIter.getDate() + 1);
         }
-        horasRangoEl.textContent = totalHoursInRange + " horas";
+        horasRangoEl.textContent = (totalHoursInRange+24) + " horas";
     } else {
         horasRangoEl.textContent = "--";
     }
