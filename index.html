@@ -887,8 +887,8 @@
         }
         if (rangeStartDate && rangeEndDate) {
           const currentDateLoop = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-          const rStart = new Date(rangeStartDate.getFullYear(), rangeStartDate.getMonth(), rangeStartDate.getDate());
-          const rEnd = new Date(rangeEndDate.getFullYear(), rangeEndDate.getMonth(), rangeEndDate.getDate());
+          const rStart = new Date(rangeStartDate.getFullYear(), rangeStartDate.getMonth(), rangeStartDate.getDate()+1);
+          const rEnd = new Date(rangeEndDate.getFullYear(), rangeEndDate.getMonth(), rangeEndDate.getDate()+1);
           if (currentDateLoop >= rStart && currentDateLoop <= rEnd) dateEl.classList.add("range-selected");
         }
         if (lastSelectedDate && dateObj.toDateString() === lastSelectedDate.toDateString()){
