@@ -779,7 +779,10 @@
     const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
 
     let startDate = new Date(firstDayOfMonth);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
+    let dayOfWeek = startDate.getDay();
+    // Ajustar para que Lunes sea 0: domingo=6, lunes=0, martes=1, etc.
+    let daysToSubtract = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
+    startDate.setDate(startDate.getDate() - daysToSubtract);
 
     let daysInCurrentMonthForFirstWeek = 0;
     for (let i = 0; i < 7; i++) {
@@ -794,7 +797,9 @@
     }
 
     let endDate = new Date(lastDayOfMonth);
-    endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+    let lastDayOfWeek = endDate.getDay();
+    let daysToAdd = (lastDayOfWeek === 0) ? 0 : 7 - lastDayOfWeek;
+    endDate.setDate(endDate.getDate() + daysToAdd);
 
     let daysInCurrentMonthForLastWeek = 0;
     for (let i = 0; i < 7; i++) {
@@ -817,7 +822,7 @@
         endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
     }
 
-    const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "WK", "WK TTS"];
+    const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do", "WK", "WK TTS"];
     dayNames.forEach(name => {
       const headerCell = document.createElement("div");
       headerCell.classList.add("header-cell");
@@ -928,7 +933,9 @@
     
     let weekStart = new Date(dateObj);
     let dayOfWeek = weekStart.getDay();
-    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    // Ajustar para semana de Lunes a Domingo
+    let daysToMonday = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
+    weekStart.setDate(weekStart.getDate() - daysToMonday);
     let weeklyHours = 0;
     for(let i=0; i<7; i++){
         let dayInWeek = new Date(weekStart);
