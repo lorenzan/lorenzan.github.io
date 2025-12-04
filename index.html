@@ -964,7 +964,7 @@
         if (dateObj >= rangeStartDate) {
             rangeEndDate = dateObj;
             endDateInput.valueAsDate = dateObj;
-            calculateAndDisplayRangeHours();
+            ();
         } else { 
             rangeStartDate = dateObj;
             rangeEndDate = null;
@@ -983,9 +983,9 @@
         let currentDateIter = new Date(rangeStartDate);
         while(currentDateIter <= rangeEndDate){
             totalHoursInRange += calculateHoursInDate(currentDateIter);
-            currentDateIter.setDate(currentDateIter.getDate());
+            currentDateIter.setDate(currentDateIter.getDate()+1);
         }
-        horasRangoEl.textContent = (totalHoursInRange+24) + " horas";
+        horasRangoEl.textContent = (totalHoursInRange) + " horas";
     } else {
         horasRangoEl.textContent = "--";
     }
