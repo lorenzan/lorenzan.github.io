@@ -983,7 +983,7 @@
         let currentDateIter = new Date(rangeStartDate);
         while(currentDateIter <= rangeEndDate){
             totalHoursInRange += calculateHoursInDate(currentDateIter);
-            currentDateIter.setDate(currentDateIter.getDate() + 1);
+            currentDateIter.setDate(currentDateIter.getDate());
         }
         horasRangoEl.textContent = (totalHoursInRange+24) + " horas";
     } else {
